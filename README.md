@@ -1,6 +1,6 @@
 # research-suite — 文獻研究與技術報告 skill 套件
 
-Claude Code / Cowork **plugin marketplace**。內含文獻研究與標準寫作的團隊 skills，供團隊成員一鍵安裝。
+Claude Code / Cowork **plugin marketplace**。內含文獻研究、標準寫作與 plant 建模的團隊 skills，供團隊成員一鍵安裝。
 
 ## 安裝方式
 
@@ -25,6 +25,7 @@ Claude Code / Cowork **plugin marketplace**。內含文獻研究與標準寫作�
 | `pxa-standards` | SP 技術報告標準寫作規範檢查 |
 | `pxa-mentor` | 研究知識庫互動式導師（讀 vault、以體系主人思維精簡答問） |
 | `pxa-latexer` | scribe 定稿 Report.md → LaTeX 紙本歸檔版（.tex，XeLaTeX） |
+| `pxa-modeler` | plant 數學模型建模工作流（三種證據 → 保真度分層 L1–L3 → 驗證階梯；工具操作配合 MathWorks 官方 skill） |
 
 安裝後呼叫方式：`/research-suite:pxa-scout`、`/research-suite:pxa-literature` … 以此類推。
 
@@ -46,5 +47,6 @@ skills/                 ← plugin 安裝時自動探索此目錄下的每個 sk
   ├─ pxa-scribe/
   ├─ pxa-standards/
   ├─ pxa-mentor/
-  └─ pxa-latexer/
+  ├─ pxa-latexer/
+  └─ pxa-modeler/
 ```

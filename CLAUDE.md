@@ -5,7 +5,7 @@
 ## 這是什麼
 
 - 單一 plugin：`research-suite`（marketplace 名亦為 `research-suite`）。
-- 4 個 skill：`pxa-scout`（文獻探勘）→ `pxa-literature`（研究整理 SOP）→ `pxa-scribe`（技術報告產出）；`pxa-standards` 為規則 SSoT（單一真實來源）。
+- 7 個 skill：`pxa-scout`（文獻探勘）→ `pxa-literature`（研究整理 SOP）→ 兩條下游：`pxa-scribe`（技術報告產出）→ `pxa-latexer`（LaTeX 紙本歸檔版），以及 `pxa-modeler`（plant 數學模型建模工作流）；`pxa-mentor` 為知識庫導師；`pxa-standards` 為規則 SSoT（單一真實來源）。
 - **佈局**：每個 skill 位於 `skills/<name>/SKILL.md`，plugin 安裝時自動探索。這是官方唯一保證會被載入的佈局。
 
 ## ⚠️ 載入／sync 的鐵則（踩過的雷）
