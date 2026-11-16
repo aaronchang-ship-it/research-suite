@@ -1,16 +1,18 @@
 ---
 name: pxa-scribe
-description: 從 obsidian 知識庫（Obsidian vault）產出對標 NASA-TP 等級的 PXA 研究報告——先盤問清楚使用者要研究什麼（grill 模式，一次一題問到收斂），搜尋 vault 盤點素材就緒度，提出報告 roadmap，再逐章撰寫；前頁/STRN/審查格式遵循 pxa-standards 之 PXA-STD-SP 體系，內文架構對標 NASA Technical Publication。凡使用者提到寫 SP、寫報告、技術報告、研究報告、scribe、PXA-STRUCT-SP、Report.md、把 vault/筆記庫寫成報告、規劃報告 roadmap、想研究某題目要產報告——即使沒有明說 skill 名稱——都應使用本 skill。範圍到 Report.md 定稿＋（使用者確認後）docx 轉檔為止；審查簽核（DAA）不在本 skill 範圍。
+description: 從 obsidian 知識庫（Obsidian vault）產出對標 NASA-TP 等級的 PXA 研究報告——先盤問清楚使用者要研究什麼（grill 模式，一次一題問到收斂），搜尋 vault 盤點素材就緒度，提出報告 roadmap，再逐章撰寫；前頁/STRN/審查格式遵循 pxa-standards 之 PXA-STD-SP 體系，內文架構對標 NASA Technical Publication。凡使用者提到寫 SP、寫報告、技術報告、研究報告、scribe、PXA-STRUCT-SP、Report.md、把 vault/筆記庫寫成報告、規劃報告 roadmap、想研究某題目要產報告——即使沒有明說 skill 名稱——都應使用本 skill。專案內有 Obsidian 知識庫時優先使用；找不到時改依專案資料夾編排規則找證據文件（如模組規格文件、PDF 原檔、測試資料，典型為模型驗證報告），仍找不到則先向使用者確認資料來源。範圍到 Report.md 定稿＋（使用者確認後）docx 轉檔為止；審查簽核（DAA）不在本 skill 範圍。
 argument-hint: "[選填：研究題目或 STRN，如 機身佈局、PXA-STRUCT-SP-2026-002、續寫第 3 章]"
 ---
 
-# scribe — 從 vault 產出 PXA 研究報告（NASA-TP 等級）v2.0
+# scribe — 從 vault 產出 PXA 研究報告（NASA-TP 等級）v2.1
 
-> 📊 本 skill 套件內附 `pipeline-flowchart.html`——整條 pipeline 的一頁式流程圖。
-> 🆕 v2.0：grill 需求盤問前置、內文架構對標 NASA-TP、產出路徑 `documents/{STRN}.md` 平鋪、MD 永遠先行。
+> 📊 本 skill 套件內附 `pipeline-flowchart.html`——整條 pipeline 的一頁式流程圖（尚未畫入 v2.1 的證據來源判定）。
+> 🆕 v2.1：證據來源判定——vault 優先；無 vault 時依專案資料夾編排規則找證據文件，找不到就問使用者。
+> v2.0：grill 需求盤問前置、內文架構對標 NASA-TP、產出路徑 `documents/{STRN}.md` 平鋪、MD 永遠先行。
 
 定位：**研究報告的主導者**，不只是格式執行者。工作次序固定為——**先了解使用者到底想研究什麼
-（盤問）→ 搜尋 vault 盤點手上有什麼（素材就緒度）→ 規劃報告 roadmap（交裁定）→ 撰寫**。
+（盤問）→ 判定證據來源並盤點手上有什麼（素材就緒度）→ 規劃報告 roadmap（交裁定）→ 撰寫**。
+下文各步驟以 vault 用語書寫；走專案證據路徑時，「筆記」讀作「專案證據文件」，差異以步驟 1c 的表為準。
 規則分工：**前頁、STRN、審查格式、[C-n]、語言規則照 PXA-STD-SP 體系（SSoT 在 pxa-standards）；
 內文架構與寫作深度對標 NASA-TP**——動筆前先讀 `references/tp-writing-guide.md`（自 9 份 NTRS TP
 實件萃取的架構與行文標竿）。
@@ -46,13 +48,51 @@ argument-hint: "[選填：研究題目或 STRN，如 機身佈局、PXA-STRUCT-S
 收斂判準：能寫出一行「本報告回答 X，供 Y 用於 Z，不含 W」即停。
 使用者說「直接寫」或題目已明確（如給了 STRN）可跳過；無人值守時以合理假設續行並標注「未經確認」。
 
-### 1. Vault 盤點（搜尋知識庫，回報就緒度）
+### 1. 證據來源判定與盤點（v2.1：vault 優先，找不到不硬套）
 
-1. 以題目關鍵字搜 `obsidian/`：對應 MOC（含兩層式的領域子 MOC）→ atomic notes → source notes。
+**1a. 判定證據來源——依序檢查，命中即停：**
+
+| 順位 | 檢查 | 命中條件 | 走哪條路 |
+|:---:|------|----------|----------|
+| 1 | 專案路徑內有無 Obsidian 知識庫 | 有 `obsidian/`；或任一資料夾含 `.obsidian/`；或同層並存 `sources/`＋`notes/`＋`MOCs/` | **vault 路徑**（1b）——有 vault 一律優先用 |
+| 2 | 專案的資料夾編排規則 | 專案 `CLAUDE.md`、`README.md` 的資料夾結構節、或聲明為「唯一真相」的規格文件，寫明了證據放在哪（如模組規格 md、`paper/`、`datasheet/`、`data/`、測試報告） | **專案證據路徑**（1c） |
+| 3 | 以上皆無，或規則互相矛盾、指不到題目相關的資料 | — | **停下問使用者**：一題問清楚「這份報告的資料來源在哪」，取得答覆後走 1c |
+
+- 不猜、不全碟搜尋；專案路徑以外的資料夾未經使用者同意不讀。
+- 有 vault 但題目相關素材不足（搜不到對應 MOC／筆記）時**不自動改走 1c**：回報缺口，由使用者
+  裁定「先 scout／literature 補 vault」或「缺口部分改用專案證據文件」（後者該部分依 1c 處理並標明）。
+- 判定結果（走哪條路、依據哪份規則或使用者哪句話）寫進 roadmap，並回寫 `SP-series-map.md`（若有）。
+
+**1b. vault 路徑——搜尋知識庫，回報就緒度：**
+
+1. 以題目關鍵字搜 vault：對應 MOC（含兩層式的領域子 MOC）→ atomic notes → source notes。
 2. 跑 literature 的 `check_vault.py`（結構須全過）；統計素材 status（`stable`／`reviewed`／`draft`）
    與 L2 文獻數（不足 5 依協調制回報裁量，STD-SP-001 §5.5）。
 3. 產出**素材就緒度表**：章節構想｜可用筆記｜status 分佈｜缺口（缺口重的章節標明「需先 scout／
    或降級為綜述」）。MOC 的待釐清節與就緒度標注是現成輸入。
+
+**1c. 專案證據路徑——無 vault 時（典型：模型驗證報告，證據是模組規格文件＋PDF 原檔＋測試資料）：**
+
+1. 依 1a 找到的編排規則列出**證據來源表**交使用者確認：來源文件｜位置｜類型（規格文件／論文／
+   規格書／測試資料／腳本）｜能支撐哪些章節｜可追溯到什麼（PDF 頁碼、資料檔＋腳本、日期）。
+   使用者確認前不進 roadmap。
+2. 產出**素材就緒度表**：章節構想｜可用文件與章節｜錨點是否齊全（有無頁碼／式號／資料檔）｜缺口。
+   不跑 `check_vault.py`（無 vault 可檢）。
+3. 本路徑的規則差異：
+
+| 項目 | vault 路徑 | 專案證據路徑 |
+|------|-----------|-------------|
+| 追溯鏈 | 報告 → 原子筆記 → source note → PDF 頁碼 | 報告 → 專案證據文件（檔名＋章節）→ 原始檔（PDF 頁碼／資料檔＋產生它的腳本） |
+| ✓／⚠ | 依 vault status 對映（stable→✓、reviewed→⚠） | 無 status 可對映，回到 STD-SP-001 §5.2 的本義：≥ 2 個獨立來源或方法交叉確認才標 ✓，否則 ⚠ |
+| [C-n] ★ | status 決定上限 | 依 STD-SP-001 §5.2 信度判定樹逐條判定 |
+| 數值與引文 | 當下回 vault → PDF 查核 | 當下回專案證據文件 → 原始檔查核；規格文件寫了但原始檔對不上者，以原始檔為準並回報 |
+| References | 由 source notes frontmatter 機械生成 | 由規格文件的文獻節＋PDF 首頁書目資訊整理，逐筆對原檔；不憑記憶補作者、卷期、DOI |
+| 發現來源有錯 | 先修 vault 再寫報告 | 回報使用者，依該專案的寫入規則先修來源文件再寫報告；禁止只在報告端修正 |
+| 模型驗證結果 | — | 沿用來源文件的驗證性質標示（對量測／對規格書／自洽／退化一致，見 pxa-modeler）；**自洽與退化一致不得寫成驗證過實物**，未定驗收標準者照實寫 |
+
+4. **偏離記錄（必要）**：STD-SP-001 §2.3／§5.5 現行條文規定 SP（研究）之證據必須可追溯至 vault。
+   走本路徑即為偏離，須於書名頁背面寫明：證據基礎為何（列文件）、為何無 vault、本報告採用的
+   追溯鏈。此項在標準修訂納入本路徑前不得省略。
 
 ### 2. Roadmap（交使用者裁定後才動筆）
 
@@ -117,7 +157,8 @@ python3 <skill根>/scripts/md2docx.py documents/{STRN}.md
 
 ## 合規紅線（時刻自查）
 
-1. **禁止記憶引用**：數值/引文當下回 vault→PDF 查核；查不到→定性陳述＋`[來源待補]`。
+1. **禁止記憶引用**：數值/引文當下回證據來源（vault 或專案證據文件）→原始檔查核；查不到→定性陳述＋`[來源待補]`。
+   證據來源依步驟 1a 判定，**不得因找不到 vault 就改用記憶或自行假設資料位置**。
 2. **MD 永遠先行**：docx 只在 MD 定稿確認後產生；docx 非 SSoT，禁止直接改 docx。
 3. [C-n] 缺適用條件＝禁止發行。
 4. 產出只落 `documents/{STRN}.md`——不建子資料夾、不散落他處。

@@ -21,7 +21,7 @@ Claude Code / Cowork **plugin marketplace**。內含文獻研究、標準寫作�
 |---|---|
 | `pxa-scout` | 文獻缺口探勘（引用鏈滾雪球 snowballing＋figures 奠基者錨定） |
 | `pxa-literature` | 文獻研究 SOP（source → atomic → MOC → 工程文件草稿） |
-| `pxa-scribe` | 盤問研究需求 → vault 盤點 → roadmap → NASA-TP 等級報告（documents/{STRN}.md，MD 先行） |
+| `pxa-scribe` | 盤問研究需求 → 證據盤點（vault 優先，無 vault 依專案編排規則或詢問）→ roadmap → NASA-TP 等級報告（documents/{STRN}.md，MD 先行） |
 | `pxa-standards` | SP 技術報告標準寫作規範檢查 |
 | `pxa-mentor` | 研究知識庫互動式導師（讀 vault、以體系主人思維精簡答問） |
 | `pxa-latexer` | scribe 定稿 Report.md → LaTeX 紙本歸檔版（.tex，XeLaTeX） |
