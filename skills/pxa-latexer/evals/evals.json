@@ -1,0 +1,17 @@
+{
+  "skill_name": "pxa-latexer",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "documents/report/PXA-STRUCT-SP-2026-002.md 已通過 check_sp 定稿，請轉成 LaTeX 紙本歸檔版。",
+      "expected_output": "以 <skill根>/scripts/md2tex.py 執行確定性轉換（不複製腳本進專案）；輸出 .tex 與 MD 同目錄；含 documentclass 與 end{document}；STRN 注入頁首；\\tag 式號保留且抽查內文「式 (n)」引用一致；告知使用者 xelatex 跑兩次的編譯方式；到 .tex 為止不編譯不產 PDF。",
+      "files": ["documents/report/PXA-STRUCT-SP-2026-002.md"]
+    },
+    {
+      "id": 1,
+      "prompt": "轉出的 .tex 我用 xelatex 編譯時發現 Part 4 有一段結論寫錯了，幫我直接在 tex 裡改掉。",
+      "expected_output": "拒絕在 .tex 上改內容（紅線：內容零改寫）；說明正確路徑＝回 pxa-scribe 修 Report.md（必要時重跑 check_sp）→ 重新以 md2tex 轉換；主動協助轉手而非只擋。",
+      "files": ["documents/report/*.tex"]
+    }
+  ]
+}

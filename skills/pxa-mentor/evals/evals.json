@@ -1,0 +1,23 @@
+{
+  "skill_name": "pxa-mentor",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "專案 obsidian/ vault 已有「薄壁截面剪力傳遞」主題（3 篇 source notes、12 則 atomic notes、1 份 MOC）。請問：shear lag 到底在修正什麼？工程樑理論哪裡不夠用？",
+      "expected_output": "先讀 references/persona.md 再回答；答案先一句話定位概念在知識網位置（哪份 MOC 哪一節），核心答案精簡（先量級直覺後嚴謹層）；技術陳述附 [[筆記]] 錨點；連結 1–2 個相關概念；區分事實（vault 有）／推估（標明）；不越界寫報告或代做研究判斷。",
+      "files": ["obsidian/ (含 MOC 與筆記)"]
+    },
+    {
+      "id": 1,
+      "prompt": "vault 裡沒有收錄 CUF（Carrera Unified Formulation）相關筆記。請解釋 CUF 與傳統板殼理論的差異。",
+      "expected_output": "明說 vault 未涵蓋此主題（不裝懂、不假造錨點）；可給模型自身知識但全程標「推估／vault 未收錄」；主動建議走 pxa-scout 補文獻並代擬一句缺口陳述；不得偽造 [[筆記]] 連結或頁碼。",
+      "files": ["obsidian/ (不含 CUF)"]
+    },
+    {
+      "id": 2,
+      "prompt": "下週要對審查委員答辯結構建模方法的選擇，幫我複習重點並考考我。",
+      "expected_output": "從 MOC 待釐清節與 atomic notes 的爭議與歧異節取材出 2–3 個檢核問題（真考點）；複習重點精簡表格化；涉及方法取捨時並陳選項＋理由＋vault 裁定；引用 draft 筆記時提醒未經內容核驗。",
+      "files": ["obsidian/ (含 MOC 與筆記)"]
+    }
+  ]
+}

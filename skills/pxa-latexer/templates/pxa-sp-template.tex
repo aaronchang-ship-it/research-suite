@@ -1,0 +1,69 @@
+% pxa-latexer — PXA SP 報告 LaTeX 模板（XeLaTeX；pandoc --template 用）
+% 版面對齊 scribe 的 SP-reference.docx 慣例：A4、頁首 STRN、頁尾頁碼、正黑＋Times。
+\documentclass[11pt,a4paper]{article}
+
+% ---------- 字型（XeLaTeX）----------
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{\setmainfont{TeX Gyre Termes}}
+% CJK：依序嘗試 Noto Sans TC → Noto Sans CJK TC → Microsoft JhengHei（Windows）
+\IfFontExistsTF{Noto Sans TC}{\setCJKmainfont{Noto Sans TC}}{%
+  \IfFontExistsTF{Noto Sans CJK TC}{\setCJKmainfont{Noto Sans CJK TC}}{%
+    \IfFontExistsTF{Microsoft JhengHei}{\setCJKmainfont{Microsoft JhengHei}}{%
+      \IfFontExistsTF{Noto Sans CJK HK}{\setCJKmainfont{Noto Sans CJK HK}}{}}}}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip 0pt plus 1pt
+
+% ---------- 版面 ----------
+\usepackage[a4paper,margin=2.5cm,headheight=14pt]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\small\texttt{$strn$}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- 數學／表格／圖 ----------
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array,calc,multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\setlist{nosep}
+
+% ---------- pandoc 相容巨集 ----------
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\makeatletter
+\@ifundefined{pandocbounded}{\newcommand{\pandocbounded}[1]{#1}}{}
+\makeatother
+\newcommand{\passthrough}[1]{#1}
+% SP 標題自帶編號（Part N／N.M），關閉 LaTeX 自動編號避免重複
+\setcounter{secnumdepth}{-2}
+
+% ---------- 標題風格 ----------
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{}{0pt}{}
+\titleformat{\subsection}{\large\bfseries}{}{0pt}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{}{0pt}{}
+\titlespacing*{\section}{0pt}{18pt}{8pt}
+\titlespacing*{\subsection}{0pt}{14pt}{6pt}
+
+% ---------- callout（引用區塊）----------
+\usepackage{mdframed}
+\newmdenv[leftmargin=6pt,rightmargin=6pt,linewidth=0pt,
+  leftline=true,linecolor=gray!60,linewidth=2.5pt,
+  backgroundcolor=gray!8,skipabove=8pt,skipbelow=8pt]{pxaquote}
+\renewenvironment{quote}{\begin{pxaquote}}{\end{pxaquote}}
+
+% ---------- 超連結（最後載入）----------
+\usepackage[unicode,hidelinks]{hyperref}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\linespread{1.18}
+
+\begin{document}
+
+$body$
+
+\end{document}

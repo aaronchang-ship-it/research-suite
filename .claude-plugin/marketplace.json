@@ -1,0 +1,19 @@
+{
+  "name": "research-suite",
+  "owner": {
+    "name": "Aaron Chang"
+  },
+  "description": "文獻研究與標準寫作 skill 套件",
+  "version": "1.10.1",
+  "plugins": [
+    {
+      "name": "research-suite",
+      "source": "./",
+      "description": "文獻探勘 → 研究整理 → 文件產出 一站式套件（pxa-scout / pxa-literature / pxa-scribe / pxa-standards / pxa-mentor / pxa-latexer）",
+      "version": "1.10.1",
+      "author": {
+        "name": "Aaron Chang"
+      }
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+---
+name: pxa-scribe
+description: 從 obsidian 知識庫（Obsidian vault）產出對標 NASA-TP 等級的 PXA 研究報告——先盤問清楚使用者要研究什麼（grill 模式，一次一題問到收斂），搜尋 vault 盤點素材就緒度，提出報告 roadmap，再逐章撰寫；前頁/STRN/審查格式遵循 pxa-standards 之 PXA-STD-SP 體系，內文架構對標 NASA Technical Publication。凡使用者提到寫 SP、寫報告、技術報告、研究報告、scribe、PXA-STRUCT-SP、Report.md、把 vault/筆記庫寫成報告、規劃報告 roadmap、想研究某題目要產報告——即使沒有明說 skill 名稱——都應使用本 skill。範圍到 Report.md 定稿＋（使用者確認後）docx 轉檔為止；審查簽核（DAA）不在本 skill 範圍。
+argument-hint: "[選填：研究題目或 STRN，如 機身佈局、PXA-STRUCT-SP-2026-002、續寫第 3 章]"
+---
+
+# scribe — 從 vault 產出 PXA 研究報告（NASA-TP 等級）v2.0
+
+> 📊 本 skill 套件內附 `pipeline-flowchart.html`——整條 pipeline 的一頁式流程圖。
+> 🆕 v2.0：grill 需求盤問前置、內文架構對標 NASA-TP、產出路徑 `documents/{STRN}.md` 平鋪、MD 永遠先行。
+
+定位：**研究報告的主導者**，不只是格式執行者。工作次序固定為——**先了解使用者到底想研究什麼
+（盤問）→ 搜尋 vault 盤點手上有什麼（素材就緒度）→ 規劃報告 roadmap（交裁定）→ 撰寫**。
+規則分工：**前頁、STRN、審查格式、[C-n]、語言規則照 PXA-STD-SP 體系（SSoT 在 pxa-standards）；
+內文架構與寫作深度對標 NASA-TP**——動筆前先讀 `references/tp-writing-guide.md`（自 9 份 NTRS TP
+實件萃取的架構與行文標竿）。
+
+## 規則 SSoT（撰寫時隨用隨讀，不要憑記憶）
+
+位置：同 plugin 內的 `pxa-standards` skill——路徑由 skill 系統定位，勿寫死安裝路徑。
+
+| 文件 | 用途 | 何時讀 |
+|------|------|--------|
+| 本 skill `references/tp-writing-guide.md` | **內文架構與寫作標竿**（TP 骨架、五段式引言、論證密度、圖表/附錄慣例） | 立案時全讀；各章動筆前重讀對應節 |
+| standards `references/PXA-STD-SP-002.md` §7.2（前頁模板）、§4（語言/引用/禁止用語）、§3.5（[C-n] 三要素）、§5（表格 Schema） | 前頁、審查格式與內容紀律 | 前頁與 Conclusions 動筆前；撰寫中隨用隨讀 |
+| standards `references/PXA-STD-SP-001.md` | 治理：STRN（§3）、審查等級（§4）、文獻層級 §5.1、信度 ★ §5.2、vault 證據鏈 §5.5 | 遇疑義時查對應章節 |
+| standards `references/writing-examples.md` | 句型庫與段落模式 | 各章動筆前 |
+| `documents/SP-series-map.md` | 系列切分、素材清單、裁定紀錄 | 立案時；roadmap 更新時回寫 |
+
+> 內文結構以 **TP 架構**為準——**已回寫 STD 正本**（裁定 #10，SP-002 v2.1 §3.0）：Part 1–6
+> 僅強制於 TM/TP，SP（研究）依 TP 骨架；前頁/審查/[C-n]/語言照 STD。check_sp 已支援 TP 模式自動偵測。
+
+## 執行流程
+
+### 0. Grill — 需求盤問（動筆前，一次一題問到收斂）
+
+比照 relentless-interview 模式：**每輪只問一題**，答案決定下一題，目的是把「想研究什麼」
+磨到可立案的精度。典型追問鏈（依答案調整，不逐條照唸）：
+
+1. **題目邊界**：你要研究的是什麼？一句話。（太寬→追問切哪一塊；太窄→確認夠不夠成一份報告）
+2. **讀者與用途**：誰讀？拿來支撐什麼決策（選型？認證論據？團隊教材？）——決定深度與比較矩陣欄位。
+3. **深度取捨**：要到「方法可重現」還是「結論可引用」？哪些部分可以只做綜述？
+4. **邊界排除**：明確不做什麼（範圍蔓延是報告難產主因）。
+5. **既有依賴**：與既有 SP／series-map 的關係（延伸？獨立？取代？）。
+
+收斂判準：能寫出一行「本報告回答 X，供 Y 用於 Z，不含 W」即停。
+使用者說「直接寫」或題目已明確（如給了 STRN）可跳過；無人值守時以合理假設續行並標注「未經確認」。
+
+### 1. Vault 盤點（搜尋知識庫，回報就緒度）
+
+1. 以題目關鍵字搜 `obsidian/`：對應 MOC（含兩層式的領域子 MOC）→ atomic notes → source notes。
+2. 跑 literature 的 `check_vault.py`（結構須全過）；統計素材 status（`stable`／`reviewed`／`draft`）
+   與 L2 文獻數（不足 5 依協調制回報裁量，STD-SP-001 §5.5）。
+3. 產出**素材就緒度表**：章節構想｜可用筆記｜status 分佈｜缺口（缺口重的章節標明「需先 scout／
+   或降級為綜述」）。MOC 的待釐清節與就緒度標注是現成輸入。
+
+### 2. Roadmap（交使用者裁定後才動筆）
+
+產出報告 roadmap 交裁定：**STRN＋後綴**（`+v1-0+DRAFT`）、報告一行定位（步驟 0 的收斂句）、
+**章節大綱**（依 tp-writing-guide 的 TP 骨架，逐章標素材來源與就緒度）、預估 [C-n] 方向、
+缺口處置（先寫可寫的章 vs 先 scout）。多份報告時排序依就緒度（拉式），並回寫 `SP-series-map.md`。
+
+### 3. 撰寫（逐章交審，不連寫多章）
+
+**產出路徑（v2.0 硬規則）**：`documents/{STRN}.md`——專案 `documents/` 平鋪、STRN 為檔名。
+**永遠 MD 先行**：全程只寫 MD；docx 是 MD 定稿後的轉檔動作，不在撰寫期考慮。
+
+撰寫順序（TP 架構，成熟內容先寫）：
+
+```
+1.2 Literature review → 技術主體章（2..N，逐章）→ Conclusions
+→ Introduction 其餘（1.1/1.3/1.4/1.5）→ Abstract（最後）
+→ 前頁（STD-SP-002 §7.2）→ Nomenclature 整併 → References（機械生成）→ Appendix
+```
+
+各步要點：
+
+- **Literature review（§1.2）**：依 L1/L2/L3 組織、現況→缺口→本報告定位；行文標 `[Author Year][L2]✓`。
+  vault source notes「與主題關聯」段是現成素材。
+- **技術主體章**：理論/建模→方法→應用/結果；每個方程標 `[Author Year, Eq.X]`（沿用筆記原文式號），
+  公式五元素照 STD；假設 A-n 附合理性；每個技術主張落在推導/數據/引用三支撐之一
+  （tp-writing-guide §二）；驗證比較須 ✓/⚠ 佐證；細節下放 Appendix、正文保持主線。
+- **Nomenclature**：正文符號一律入表（符號/定義/單位），與 vault 符號慣例筆記對齊。
+- **Conclusions**：逐條 `**[C-n]** ★ {結論}`＋適用條件＋限制——**缺適用條件即禁止發行**；
+  ★ 依 STD-SP-001 §5.2（stable→上限★★；reviewed→★；⚠ 隨筆記帶出）。
+- **Introduction 五段式**：Objectives 由研究框架 RQ 轉寫；Contributions 與 [C-n] 逐條對映。
+- **Appendix**（含逐字摘錄附錄）：每筆正文引用附 verbatim 原文（回 `source/` PDF 擷取，非英文附英譯），
+  禁止憑記憶或筆記轉述充當摘錄。
+- **正式化書寫（SP-002 §4.1，v2.2）**：繁中優先、專有名詞首現「中文（English, 縮寫）」後沿用、
+  標題雙語「中文（English）」（含五個 TP 必要節；check_sp 已容許）、補充說明以「須注意，……」等
+  正式敘述句行文，禁括號夾註／口語附記；口吻依 tp-writing-guide §五。
+- 素材為 `reviewed` 的內容降信度處理（⚠/★），`stable` 才標 ✓；References 由 source notes
+  frontmatter（bibkey/authors/year/title/venue/doi）機械生成。
+
+### 4. 合規 gate（MD 定稿前）
+
+1. 執行 pxa-standards 的 `python3 <pxa-standards根>/scripts/check_sp.py documents/{STRN}.md`
+   （從該 skill 目錄執行，不複製進專案）。**check_sp 已支援雙模式**（SP-002 v2.1 §8.1）：
+   無 `## Part N:` 標題即自動走 TP 模式（檢 TP 骨架必要節、Abstract 淨空、逐字摘錄附錄），
+   全部 [S] 項須全過——不再有豁免。
+2. 人審清單（STD-SP-002 §8.2）逐項回報；逐字摘錄附錄抽驗 ≥20% 回 PDF 比對。
+3. 對照 tp-writing-guide §四自查：完整自足、誠實邊界、結論可追溯。
+
+### 5. MD 定稿 → （確認後才）docx
+
+**使用者確認 MD 定稿後**，才執行轉檔：
+
+```
+python3 <skill根>/scripts/md2docx.py documents/{STRN}.md
+```
+
+> 腳本與範本住本 skill 目錄（`<skill根>`），禁止複製進專案。轉出後 `soffice --headless
+> --convert-to pdf` 產預覽，抽查封面/公式頁/摘錄附錄三頁版面。版面問題改範本或腳本後重轉，
+> 禁止手工改 docx。內容修訂一律回 MD 重轉（**MD 是 SSoT**）。紙本歸檔 LaTeX 版交 pxa-latexer。
+
+交付後停止：審查簽核（DAA）不在本 skill 範圍，不要主動接續。
+
+## 合規紅線（時刻自查）
+
+1. **禁止記憶引用**：數值/引文當下回 vault→PDF 查核；查不到→定性陳述＋`[來源待補]`。
+2. **MD 永遠先行**：docx 只在 MD 定稿確認後產生；docx 非 SSoT，禁止直接改 docx。
+3. [C-n] 缺適用條件＝禁止發行。
+4. 產出只落 `documents/{STRN}.md`——不建子資料夾、不散落他處。
+5. 三無句（無推導、無數據、無引用支撐）不寫進技術主體。
+6. Typora 相容：`$$` 三行、page-break 只在章之間、MD 頭部 metadata 完整。
