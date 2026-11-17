@@ -4,10 +4,11 @@ description: 從 obsidian 知識庫（Obsidian vault）產出對標 NASA-TP 等�
 argument-hint: "[選填：研究題目或 STRN，如 機身佈局、PXA-STRUCT-SP-2026-002、續寫第 3 章]"
 ---
 
-# scribe — 從 vault 產出 PXA 研究報告（NASA-TP 等級）v2.1
+# scribe — 從 vault 產出 PXA 研究報告（NASA-TP 等級）v2.2
 
 > 📊 本 skill 套件內附 `pipeline-flowchart.html`——整條 pipeline 的一頁式流程圖（尚未畫入 v2.1 的證據來源判定）。
-> 🆕 v2.1：證據來源判定——vault 優先；無 vault 時依專案資料夾編排規則找證據文件，找不到就問使用者。
+> 🆕 v2.2：docx 版面改用 Word 範本 `templates/PXA-SP-template.dotx`（轉檔腳本每次先複製範本再套用；沒有 Claude 的同仁可直接用同一份範本手動編寫）。
+> v2.1：證據來源判定——vault 優先；無 vault 時依專案資料夾編排規則找證據文件，找不到就問使用者。
 > v2.0：grill 需求盤問前置、內文架構對標 NASA-TP、產出路徑 `documents/{STRN}.md` 平鋪、MD 永遠先行。
 
 定位：**研究報告的主導者**，不只是格式執行者。工作次序固定為——**先了解使用者到底想研究什麼
@@ -146,12 +147,49 @@ argument-hint: "[選填：研究題目或 STRN，如 機身佈局、PXA-STRUCT-S
 **使用者確認 MD 定稿後**，才執行轉檔：
 
 ```
-python3 <skill根>/scripts/md2docx.py documents/{STRN}.md
+python <skill根>/scripts/md2docx.py documents/{STRN}.md
 ```
 
-> 腳本與範本住本 skill 目錄（`<skill根>`），禁止複製進專案。轉出後 `soffice --headless
-> --convert-to pdf` 產預覽，抽查封面/公式頁/摘錄附錄三頁版面。版面問題改範本或腳本後重轉，
-> 禁止手工改 docx。內容修訂一律回 MD 重轉（**MD 是 SSoT**）。紙本歸檔 LaTeX 版交 pxa-latexer。
+腳本每次依序做三件事，不需另外下指令：
+
+1. **先複製範本**：把 `<skill根>/templates/PXA-SP-template.dotx` 複製成暫存 docx，樣式、頁首頁尾、
+   邊界都取自這份副本。
+2. **轉檔**：pandoc 以該副本為樣式來源，把 MD 轉成 docx（公式轉為 Word 原生方程式）。
+3. **套版面**：重排封面與書名頁、分三節編頁碼、調整表格、填入頁尾之報告編號與安全等級。
+
+版面規格（由範本與腳本共同保證，撰寫時不必處理）：
+
+| 項目 | 規格 |
+|------|------|
+| 字型與行距 | 中文標楷體、英數 Times New Roman、12 點、行距 1.5 倍、靠左、全文黑色 |
+| 標題 | 章（`##`）12 點粗體、英文全大寫、自動換頁；節與小節 12 點粗體；標題上下不加線 |
+| 頁碼 | 封面不編；書名頁起小寫羅馬數字（書名頁計為 i、不顯示）；第 1 章起阿拉伯數字自 1 起 |
+| 頁尾 | 頁碼置中，下一行為「報告編號｜安全等級」 |
+| 表格 | 全框線、表頭淺灰底；欄寬依內容分配；表頭與短欄置中；列不跨頁；跨頁重複表頭；表內文字無間距 |
+| 表標題／圖標題 | 表標題在表上方、圖標題在圖下方，置中粗體 |
+
+為了讓腳本認得出各部分，MD 須符合下列寫法（`templates/PXA-SP-template.md` 是可照抄的骨架）：
+
+- 前頁依序為 `## 封面`、`## 書名頁`、`## 書名頁背面`…，兩節各有一個 `#` 標題與「項目｜內容」表；
+  封面表含報告編號、版本、日期、狀態、安全等級，書名頁表含作者、專案、階段。
+- 第 1 章標題以 `## 1.` 開頭；腳本以此為前頁與正文之分界。
+- 表標題寫成表格正上方的一段「表 N　標題」；圖用 `![圖 N　標題](路徑)`。
+- 章與章之間的 page-break div 可保留（Typora 用），轉檔時會移除，換頁由章標題樣式負責。
+
+> 腳本與範本住本 skill 目錄（`<skill根>`），禁止複製進專案。轉出後以 Word 另存 PDF（或
+> `soffice --headless --convert-to pdf`）產預覽，抽查封面、任一公式頁、任一跨頁表格、摘錄附錄。
+> 版面問題改範本或腳本後重轉，禁止手工改 docx。內容修訂一律回 MD 重轉（**MD 是 SSoT**）。
+> 紙本歸檔 LaTeX 版交 pxa-latexer。
+
+**範本維護與人工使用**：
+
+- 沒有 Claude 的同仁：直接取用 `templates/PXA-SP-template.dotx`，在 Word 以它開新文件，照範本
+  最後一個附錄「範本使用說明」填寫。人工編寫的報告以該 docx 為正本，不受上述「禁止手工改 docx」限制
+  （該限制只適用於由 MD 轉出的 docx）。
+- 改樣式（字型、行距、框線、頁尾）：在 Word 開啟 .dotx 本身修改樣式後存檔。
+- 改範本內的示範內容：改 `templates/PXA-SP-template.md`，再執行
+  `python scripts/md2docx.py templates/PXA-SP-template.md -o templates/PXA-SP-template.dotx` 重建。
+- 範本隨公開 repo 發佈，內容須去識別化：不得放入真實專案名稱、人名、數據與圖。
 
 交付後停止：審查簽核（DAA）不在本 skill 範圍，不要主動接續。
 

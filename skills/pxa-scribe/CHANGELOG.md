@@ -1,5 +1,26 @@
 # scribe skill — CHANGELOG
 
+## v2.2（2026-11-17，plugin 1.13.0）
+
+起因：一份報告的 docx 經多次手動調整後版面失控，重新排版並由使用者自四個方案中選定 AFRL 風格
+（方案 B）。本版把該版面固定成 Word 範本，轉檔腳本與人工編寫共用同一份。
+
+| # | 變更 | 落點 |
+|---|------|------|
+| 1 | **新增 Word 範本** `PXA-SP-template.dotx`：標楷體＋Times New Roman 12 點、行距 1.5 倍、全文黑色、章標題不加線、全框線表格、頁尾「報告編號｜安全等級」；含封面至附錄之完整骨架與「範本使用說明」附錄，可不經 Claude 手動填寫 | `templates/PXA-SP-template.dotx` |
+| 2 | 範本內容來源 MD（去識別化佔位字）與佔位圖 | `templates/PXA-SP-template.md`、`templates/fig-placeholder.png` |
+| 3 | **md2docx.py 改寫**：每次先複製範本再轉檔；封面與書名頁依範本版式重排；分三節（封面不編頁碼／前頁小寫羅馬數字／正文阿拉伯數字自 1 起）；表格欄寬依內容分配、表頭與短欄置中、列不跨頁、跨頁重複表頭；「表 N」段落自動套 Table Caption；未引用之範本圖檔不留在輸出 | `scripts/md2docx.py` |
+| 4 | md2docx.py 只用 Python 標準函式庫與 pandoc，不再呼叫 `zip`／`unzip`（Windows 可直接執行） | `scripts/md2docx.py` |
+| 5 | page-break div 轉檔時移除，換頁改由章標題樣式負責；粗體標籤行（如 `**致謝**`）後接內文者保留換行 | `scripts/md2docx.py` |
+| 6 | 移除舊樣式檔與其建置腳本（微軟正黑體、藍色標題之舊版面） | `templates/SP-reference.docx`、`scripts/build_reference.py` |
+| 7 | 步驟 5 改寫：版面規格表、MD 寫法要求、範本維護與人工使用方式 | SKILL.md §5 |
+
+已知限制：
+- 表格欄寬依字數估算，不是實際排版量測；六欄以上之文字表仍可能偏擠。
+- 含合併儲存格之表格不自動調欄寬。
+- 無目錄、圖表目錄；圖表仍為全文流水號（標準未要求，未做）。
+- 版面規格目前只寫在本 skill；PXA-STD-SP-002 尚未納入（需標準核准）。
+
 ## v2.1（2026-11-16，plugin 1.12.0）
 
 起因：一份模型驗證報告在沒有 vault 的專案撰寫——證據是模組規格文件與 PDF 原檔。v2.0 假設

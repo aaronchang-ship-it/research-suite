@@ -23,10 +23,10 @@
     {
       "id": 2,
       "prompt": "Report.md 已定稿並經使用者核准，請產出正式交付檔。",
-      "expected_output": "以 scripts/md2docx.py 轉出 docx（套 templates/SP-reference.docx 樣式；$$ 公式→OMML、式號保留、page-break 分頁、附錄 E 巢狀表提升、頭部 metadata 剝除）；轉出後以 soffice 產 pdf 預覽並抽查封面/任一公式頁/附錄 E 三頁版面；如有版面問題改模板或腳本後重轉、不手改 docx；交付 md＋docx（Draft 狀態）並聲明 MD 為 SSoT、內容修訂回 MD 端；DAA 審查簽核不主動接續。",
+      "expected_output": "以 scripts/md2docx.py 轉出 docx（套 templates/PXA-SP-template.dotx 樣式；$$ 公式→OMML、式號保留、page-break 分頁、附錄 E 巢狀表提升、頭部 metadata 剝除）；轉出後以 soffice 產 pdf 預覽並抽查封面/任一公式頁/附錄 E 三頁版面；如有版面問題改模板或腳本後重轉、不手改 docx；交付 md＋docx（Draft 狀態）並聲明 MD 為 SSoT、內容修訂回 MD 端；DAA 審查簽核不主動接續。",
       "files": [
         "documents/report/ (定稿 md)",
-        "templates/SP-reference.docx"
+        "templates/PXA-SP-template.dotx"
       ]
     },
     {
