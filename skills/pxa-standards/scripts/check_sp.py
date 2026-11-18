@@ -1,34 +1,52 @@
 #!/usr/bin/env python3
-"""SP（研究）Report.md 合規檢查（scribe skill 合規 gate）
+"""PXA 技術報告 Report.md 合規檢查（合規 gate）
 
 用法:
-    python3 check_sp.py <Report.md>
+    python check_sp.py <Report.md>
 
-雙模式（依 PXA-STD-SP-002 v2.1 §8.1）：自動偵測——含 `## Part N:` 標題走 **Part 模式**
-（TM/TP 舊制，檢查項 1a/2/6/7 之 Part 規則）；否則走 **TP 模式**（SP（研究）v2.1：
-檢查 TP 骨架必要節——**容許「中文（English）」雙語標題**（SP-002 v2.2 §4.1）、Abstract 淨空、
-逐字摘錄附錄）。內容類檢查（$$ 格式、[C-n] 三要素、禁止用語、metadata、L2 計數）兩模式共用。
+依 PXA-STD-SP-001 v4.0／PXA-STD-SP-002 v3.0 §8.1。所有技術報告共用 TP 骨架，
+以 MD 頭部之「報告性質」（研究／設計／測試，可用＋並列）決定必要章節。
 
-檢查項（依 PXA-STD-SP-001 v3.0／PXA-STD-SP-002 v2.1；L2 門檻為協調制，僅回報）:
-  1. Part 1–6 不可變結構：六個 Part 齊全、順序正確、無 Part 7、標題格式 `## Part N:`
-  2. Part 之間有 page-break div；`### X.Y` 節之間不得有
-  3. $$ 三行格式（$$ 必須獨立成行）
-  4. [C-n] 三要素：結論行含 ★/⚠ 信度標記，其後含「適用條件」與「限制」
-  5. 禁止用語掃描（大約/應該可以/眾所周知/顯然/等等/顯著影響/大幅提升）
-  6. Part 1 淨空：無 $$ 公式、無 [Author Year] 外部引用
-  7. Part 4 假敘事化：§4.x 內無 ####/##### 子標題、無粗體步驟標記（**Step**、**xx**: 開頭）
-  8. 附錄 E 存在且每個引用代碼有「引用摘錄」表
-  9. MD 頭部 metadata：文件編號/版本/日期/狀態 齊全
+檢查項:
+  1. 骨架必要節：摘要、緒論、結論；有 $$ 公式須有符號表；有 [Author Year] 引用須有參考文獻
+     （容許「中文（English）」雙語標題）
+  2. 報告性質已宣告，且其必要章節存在（章節標題關鍵字；多重性質取聯集）
+  3. 章（##）之間有 page-break div；節（###）之前不得有
+  4. $$ 三行格式（$$ 必須獨立成行）
+  5. [C-n] 三要素：結論行含 ★/⚠ 信度標記，其後含「適用條件」與「限制」
+  6. 禁止用語掃描（大約/應該可以/眾所周知/顯然/等等/顯著影響/大幅提升）
+  7. 摘要淨空：無 $$ 公式、無 [Author Year] 外部引用
+  8. 有外部引用時逐字摘錄附錄存在，且每個引用代碼有「引用摘錄」表
+  9. MD 頭部 metadata：文件編號/版本/日期/狀態/報告性質 齊全
  10. [回報不擋件] [L2] 標記計數（協調制門檻 5）
+
+仍含 `## Part N:` 標題者為舊制結構（SP-002 v3.0 起退役），判為不合規。
 
 結束碼: 0 = 全過（第 10 項僅回報）, 1 = 有違規
 """
 import re
 import sys
 
-REQUIRED_PARTS = ["Part 1", "Part 2", "Part 3", "Part 4", "Part 5", "Part 6"]
 BANNED = ["大約", "應該可以", "眾所周知", "顯然", "等等", "顯著影響", "大幅提升"]
 PAGEBREAK = 'page-break-after: always'
+CITE = r"\[[A-Z][A-Za-z&.\- ]+ (19|20)\d\d"
+
+SKELETON = [("摘要（Abstract）", r"Abstract\b|摘要"),
+            ("緒論（Introduction）", r"Introduction\b|緒論|引言"),
+            ("結論（Conclusions）", r"Conclusions|Concluding Remarks|結論")]
+NOMEN = r"Nomenclature\b|符號表|符號說明"
+REFS = r"References\b|參考文獻"
+
+# SP-002 §8.1 檢查項 2：必要章節 → 標題關鍵字
+NATURE_SECTIONS = {
+    "研究": [("文獻回顧", r"文獻回顧|Literature Review"),
+             ("理論與建模", r"理論|建模|模型|方法|Theory|Model|Method")],
+    "設計": [("理論與建模", r"理論|建模|模型|方法|Theory|Model|Method"),
+             ("需求與設計基線", r"需求|設計基線|約束|Requirement|Baseline")],
+    "測試": [("測試項目與通過準則", r"測試項目|通過準則|評估指標|Test Item|Acceptance|Metrics"),
+             ("測試組態", r"組態|測試資料|測試設置|Configuration|Test Data|Setup"),
+             ("偏差紀錄", r"偏差|Deviation")],
+}
 
 
 def main(path):
@@ -36,50 +54,68 @@ def main(path):
     lines = text.split("\n")
     problems, notices = [], []
 
-    # 模式偵測（SP-002 v2.1 §8.1）：有 `## Part N` → Part 模式（TM/TP）；否則 TP 模式（SP）
-    part_heads = [(i, l) for i, l in enumerate(lines) if re.match(r"^##\s*Part\s+\d", l)]
-    tp_mode = not part_heads
-    notices.append(f"[模式] {'TP（SP（研究），v2.1）' if tp_mode else 'Part（TM/TP 舊制）'}")
+    # 標題清單（略過程式碼區塊內之 #）
+    heads, fenced = [], False
+    for i, l in enumerate(lines):
+        if l.strip().startswith("```"):
+            fenced = not fenced
+        elif not fenced and re.match(r"^#{1,4}\s", l):
+            heads.append((i, l))
+    titles = "\n".join(l for _, l in heads)
 
-    if not tp_mode:
-        # 1a. Part structure
-        found = [re.match(r"^##\s*Part\s+(\d+)", l).group(1) for _, l in part_heads]
-        if found != ["1", "2", "3", "4", "5", "6"]:
-            problems.append(f"[結構] Part 順序/數量異常: {found}（要求 1–6 各一、順序固定、無 Part 7）")
-        for _, l in part_heads:
-            if not re.match(r"^##\s*Part\s+\d+[:：]", l):
-                problems.append(f"[結構] Part 標題缺冒號格式: {l.strip()}")
-    else:
-        # 1b. TP 骨架必要節（SP-002 v2.1 §3.0）
-        # v2.2：容許「中文（English）」雙語標題——以子字串比對英文節名或對應中文節名
-        for sec, pat in [("Abstract", r"^#+[^\n]*(Abstract\b|摘要)"),
-                         ("Nomenclature", r"^#+[^\n]*(Nomenclature\b|符號表|符號說明)"),
-                         ("Introduction", r"^#+[^\n]*(Introduction\b|緒論|引言)"),
-                         ("Conclusions", r"^#+[^\n]*(Conclusions|Concluding Remarks|結論)"),
-                         ("References", r"^#+[^\n]*(References\b|參考文獻)")]:
-            if not re.search(pat, text, re.M):
-                problems.append(f"[結構/TP] 缺必要節「{sec}」")
+    def has(pat):
+        return bool(re.search(pat, titles))
 
-    # 2. page-break between Parts only（Part 模式）
-    for idx in range(1, len(part_heads)):
-        prev_end = part_heads[idx][0]
-        seg = "\n".join(lines[part_heads[idx - 1][0]:prev_end])
-        if PAGEBREAK not in seg:
-            problems.append(f"[分頁] {lines[part_heads[idx-1][0]].strip()} 與下一 Part 之間缺 page-break div")
-    # no pagebreak between ### sections (within a part, more than needed)
+    if re.search(r"^##\s*Part\s+\d", titles, re.M):
+        problems.append("[結構] 含 `## Part N:` 標題——Part 1–6 為舊制結構，已退役；請改為 TP 骨架（SP-002 §3.0）")
+
+    # 1. skeleton
+    for name, pat in SKELETON:
+        if not has(pat):
+            problems.append(f"[結構] 缺必要節「{name}」")
+    if "$$" in text and not has(NOMEN):
+        problems.append("[結構] 有公式但缺「符號表（Nomenclature）」")
+    cited = bool(re.search(CITE, text))
+    if cited and not has(REFS):
+        problems.append("[結構] 有外部引用但缺「參考文獻（References）」")
+    if not any(re.match(r"^##\s*1\s*[\.．]", l) for _, l in heads):
+        problems.append("[結構] 找不到以 `## 1.` 開頭之第 1 章（前頁與本文之分界）")
+
+    # 9 + 2. metadata and report nature
+    head = "\n".join(lines[:30])
+    for field in ["文件編號", "版本", "日期", "狀態", "報告性質"]:
+        if field not in head:
+            problems.append(f"[metadata] 頭部缺「{field}」")
+    m = re.search(r"報告性質[:：]\*{0,2}\s*([^\n]+)", head)
+    natures = [n for n in NATURE_SECTIONS if m and n in m.group(1)]
+    if m and not natures:
+        problems.append(f"[性質] 報告性質「{m.group(1).strip()}」無法辨識（須為 研究／設計／測試，可用＋並列）")
+    notices.append(f"[性質] {'＋'.join(natures) if natures else '未宣告'}")
+    seen = set()
+    for n in natures:
+        for name, pat in NATURE_SECTIONS[n]:
+            if name not in seen and not has(pat):
+                problems.append(f"[性質/{n}] 缺必要章節「{name}」（標題須含：{pat.replace('|', '、')}）")
+            seen.add(name)
+
+    # 3. page breaks: between chapters yes, before sections no
+    chapters = [i for i, l in heads if re.match(r"^##\s", l)]
+    for a, b in zip(chapters, chapters[1:]):
+        if PAGEBREAK not in "\n".join(lines[a:b]):
+            problems.append(f"[分頁] 「{lines[a].strip()[:30]}」與下一章之間缺 page-break div")
     for i, l in enumerate(lines):
         if PAGEBREAK in l:
-            nxt = next((x for x in lines[i + 1:i + 4] if x.strip()), "")
-            if re.match(r"^###\s", nxt):
-                problems.append(f"[分頁] 第 {i+1} 行 page-break 出現在 Section 之間（僅允許 Part 間）")
+            nxt = next((x for x in lines[i + 1:i + 5] if x.strip() and x.strip() != "---"), "")
+            if re.match(r"^###+\s", nxt):
+                problems.append(f"[分頁] 第 {i+1} 行 page-break 出現在節之前（僅允許章之間）")
 
-    # 3. $$ three-line format
+    # 4. $$ three-line format
     for i, l in enumerate(lines):
         s = l.strip()
         if "$$" in s and s != "$$":
             problems.append(f"[公式] 第 {i+1} 行 $$ 未獨立成行: {s[:60]}")
 
-    # 4. [C-n] triples
+    # 5. [C-n] triples
     cns = [(i, l) for i, l in enumerate(lines) if re.match(r"^\*\*\[C-\d+\]\*\*", l.strip())]
     for i, l in cns:
         if not re.search(r"[★⚠]", l):
@@ -92,69 +128,36 @@ def main(path):
     if not cns:
         problems.append("[C-n] 全文未找到任何 **[C-n]** 結論")
 
-    # locate part ranges
-    def part_range(n):
-        starts = [i for i, l in part_heads if re.match(rf"^##\s*Part\s+{n}", l)]
-        if not starts:
-            return None
-        s = starts[0]
-        later = [i for i, _ in part_heads if i > s]
-        e = later[0] if later else len(lines)
-        return "\n".join(lines[s:e])
-
-    # 5. banned phrases
+    # 6. banned phrases
     for w in BANNED:
         for i, l in enumerate(lines):
             if w in l and not l.strip().startswith(">"):
                 problems.append(f"[用語] 第 {i+1} 行含禁止用語「{w}」")
                 break  # 每詞回報一次即可
 
-    # 6. Part 1 clean（Part 模式）／Abstract 淨空（TP 模式）
-    if not tp_mode:
-        p1 = part_range(1)
-        if p1:
-            if "$$" in p1:
-                problems.append("[Part1] 含公式（禁止）")
-            if re.search(r"\[[A-Z][a-zA-Z]+ (19|20)\d\d", p1):
-                problems.append("[Part1] 含外部文獻引用（禁止）")
-    else:
-        m = re.search(r"^#+[^\n]*(?:Abstract\b|摘要)[^\n]*$(.*?)^#", text, re.M | re.S)
-        if m and "$$" in m.group(1):
-            problems.append("[Abstract] 含公式（禁止）")
+    # 7. abstract clean
+    m = re.search(r"^##[^\n]*(?:Abstract\b|摘要)[^\n]*$(.*?)^##\s", text, re.M | re.S)
+    if m:
+        if "$$" in m.group(1):
+            problems.append("[摘要] 含公式（禁止）")
+        if re.search(CITE, m.group(1)):
+            problems.append("[摘要] 含外部文獻引用（禁止）")
 
-    # 7. Part 4 pseudo-narrative（Part 模式）
-    p4 = part_range(4) if not tp_mode else None
-    if p4:
-        for m in re.finditer(r"^####+\s.*$", p4, re.M):
-            problems.append(f"[Part4] 含子標題（禁止）: {m.group(0)[:40]}")
-        for m in re.finditer(r"^\*\*(Step\s*\d|步驟\s*\d|[^*]{2,12})[:：]\*\*", p4, re.M):
-            problems.append(f"[Part4] 含粗體步驟/小標標記（禁止）: {m.group(0)[:40]}")
-
-    # 8. 逐字摘錄附錄（Part 模式＝附錄 E；TP 模式＝任一含「引用摘錄」之 Appendix/附錄）
-    if not tp_mode:
-        has_app = bool(re.search(r"^#+\s*附錄\s*E", text, re.M))
-    else:
-        has_app = bool(re.search(r"^#+\s*(Appendix|附錄)\s*[A-Z]", text, re.M)) and "引用摘錄" in text
-    if not has_app:
-        problems.append("[附錄] 缺逐字摘錄附錄（Part 模式＝附錄 E；TP 模式＝含引用摘錄之 Appendix）")
-    else:
-        appe = text.split("附錄 E", 1)[1] if (not tp_mode and "附錄 E" in text) else \
-               text[re.search(r"^#+\s*(Appendix|附錄)\s*[A-Z]", text, re.M).start():]
-        codes = re.findall(r"^####\s*\[(.+?)\]", appe, re.M)
-        for c in codes:
-            seg = appe.split(f"[{c}]", 1)[1][:1500]
-            if "引用摘錄" not in seg:
-                problems.append(f"[附錄E] [{c}] 缺引用摘錄表")
-
-    # 9. metadata header
-    head = "\n".join(lines[:30])
-    for field in ["文件編號", "版本", "日期", "狀態"]:
-        if field not in head:
-            problems.append(f"[metadata] 頭部缺「{field}」")
+    # 8. verbatim excerpts appendix
+    if cited:
+        app = re.search(r"^#+\s*(Appendix|附錄)\s*[A-Z]", text, re.M)
+        if not app or not re.search(r"引用摘錄|逐字摘錄|Verbatim", text[app.start():]):
+            problems.append("[附錄] 有外部引用但缺逐字摘錄附錄（SP-002 §6、§5.9）")
+        else:
+            appe = text[app.start():]
+            for c in re.findall(r"^####\s*\[(.+?)\]", appe, re.M):
+                seg = appe.split(f"[{c}]", 1)[1][:1500]
+                if "引用摘錄" not in seg:
+                    problems.append(f"[附錄] [{c}] 缺引用摘錄表")
 
     # 10. L2 count (report only)
     l2 = len(re.findall(r"\[L2\]", text))
-    notices.append(f"[L2] 標記出現 {l2} 次（協調制參考門檻 5；不足時須經使用者裁量）")
+    notices.append(f"[L2] 標記出現 {l2} 次（研究性質之協調制參考門檻 5；不足時須經使用者裁量）")
 
     print(f"=== check_sp: {path} ===")
     for n in notices:

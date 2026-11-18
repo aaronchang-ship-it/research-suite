@@ -1,5 +1,23 @@
 # scribe skill — CHANGELOG
 
+## v2.3（2026-11-18，plugin 1.14.0）
+
+起因：使用一段時間後裁定報告類型過多反而難管理（裁定 #12）——保留 SP（標準），把 SP（研究）、TM、TP
+合併為技術報告（TR），研究、設計、測試都用同一份範本擴充或裁減。標準正本為 SP-001 v4.0／SP-002 v3.0。
+
+| # | 變更 | 落點 |
+|---|------|------|
+| 1 | 新增「報告性質與裁剪表」：立案時宣告研究／設計／測試（可並列），依表決定必要章節 | SKILL.md 規則 SSoT 節 |
+| 2 | Roadmap 須含報告性質；STRN 改為 `PXA-{CODE}-TR-{YYYY}-{NNN}`；MD 頭部 metadata 須含報告性質 | SKILL.md §2、§3 |
+| 3 | 專案證據路徑已納入標準正本，原「偏離記錄」改為「證據來源說明」 | SKILL.md §1c-4 |
+| 4 | 合規 gate 說明改為單一模式（含報告性質檢查） | SKILL.md §4 |
+| 5 | vault-mapping 之區段名稱由 Part 改為 TP 骨架章名 | `references/vault-mapping.md` |
+| 6 | Word 範本：metadata 與文件資訊頁加報告性質、第 2 章改為「理論與建模」、使用說明附錄加入裁剪表 | `templates/PXA-SP-template.md`、`.dotx` |
+
+待辦：
+- `pipeline-flowchart.html`、`evals/evals.json` 仍為 Part 與 Quick/Update 舊用語，未更新。
+- 範本只附研究性質之示範章節；設計與測試之示範章節尚未加入。
+
 ## v2.2（2026-11-17，plugin 1.13.0）
 
 起因：一份報告的 docx 經多次手動調整後版面失控，重新排版並由使用者自四個方案中選定 AFRL 風格
