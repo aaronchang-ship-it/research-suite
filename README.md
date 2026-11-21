@@ -17,6 +17,10 @@ Claude Code / Cowork **plugin marketplace**。內含文獻研究、標準寫作�
 
 ## 內含 skills（1 個 plugin：`research-suite`）
 
+兩條主線，都是把工作經驗寫成 SOP：
+
+### 1. 研究流程與報告撰寫
+
 | skill | 用途 |
 |---|---|
 | `pxa-scout` | 文獻缺口探勘（引用鏈滾雪球 snowballing＋figures 奠基者錨定） |
@@ -25,7 +29,14 @@ Claude Code / Cowork **plugin marketplace**。內含文獻研究、標準寫作�
 | `pxa-standards` | SP 技術報告標準寫作規範檢查 |
 | `pxa-mentor` | 研究知識庫互動式導師（讀 vault、以體系主人思維精簡答問） |
 | `pxa-latexer` | scribe 定稿 Report.md → LaTeX 紙本歸檔版（.tex，XeLaTeX） |
+
+### 2. MATLAB / Simulink 檔案建立與資料夾分類
+
+| skill | 用途 |
+|---|---|
+| `pxa-matlab-project` | 專案資料夾分類與檔案歸類（九個固定資料夾、相依鏈、三個判斷問句、產出雙軌；新專案範本、盤點與搬移流程） |
 | `pxa-modeler` | plant 數學模型建模工作流（三種證據 → 保真度分層 L1–L3 → 驗證階梯；工具操作配合 MathWorks 官方 skill） |
+| `pxa-matlab-style` | MATLAB m-file 撰碼風格（檔頭、分段、對齊、命名、單位換算、輸出與繪圖；統一既有檔案的流程） |
 
 安裝後呼叫方式：`/research-suite:pxa-scout`、`/research-suite:pxa-literature` … 以此類推。
 
@@ -48,5 +59,7 @@ skills/                 ← plugin 安裝時自動探索此目錄下的每個 sk
   ├─ pxa-standards/
   ├─ pxa-mentor/
   ├─ pxa-latexer/
-  └─ pxa-modeler/
+  ├─ pxa-modeler/
+  ├─ pxa-matlab-style/
+  └─ pxa-matlab-project/
 ```
