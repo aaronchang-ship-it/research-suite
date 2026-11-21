@@ -5,6 +5,8 @@
 
 <一段話說明專案：機型 / 產品、範疇（設計、驗證、參數、資料分析）。>
 
+完整說明書（架構圖、資料交換、流程、現況盤點）見 `README.html`。
+
 ---
 
 ## 快速開始
@@ -24,7 +26,7 @@
 | `veristand\` | SIL / HIL 即時目標機模型 | 即時目標機用的包裝模型與 init / sim 腳本 |
 | `output\` | 人類可讀產出 | `.xlsx` / `.txt` / 參數檔 / 圖檔；交接其他分系統或作報告素材 |
 | `documents\` | 技術報告草稿 | `.md` |
-| `README.md`、`CLAUDE.md` | 專案說明 / Claude 協作指引 | 放專案根目錄 |
+| `README.md`、`README.html`、`CLAUDE.md` | 專案說明（文字精簡版 / 完整說明書）/ Claude 協作指引 | 放專案根目錄 |
 
 `cache\`、`*\slprj\`、`resources\` 由 MATLAB / Simulink 自動產生，勿手動編輯。
 

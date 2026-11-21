@@ -1,13 +1,13 @@
 ---
 name: pxa-matlab-project
-description: MATLAB / Simulink 專案的資料夾分類與檔案歸類 SOP：九個固定的第 1 層資料夾（data / workspace / library / model / design / harness / veristand / output / documents）、相依鏈、三個判斷問句、分系統資料與整合測試資料的編排、機器讀與人讀的產出雙軌、命名規則，以及搬移檔案時的清單、確認與 MATLAB Project 路徑同步。凡使用者提到建立新的 MATLAB 專案、專案範本、資料夾結構、資料夾分類、檔案該放哪裡、整理或盤點專案資料夾、搬移或改名 .m / .slx / .mat、新增一個 domain 或分系統的資料夾——即使沒有明說 skill 名稱——都應使用本 skill。建模工作流屬 pxa-modeler、.m 撰碼風格屬 pxa-matlab-style；本 skill 只管「檔案放哪裡、叫什麼、怎麼搬」。
+description: MATLAB / Simulink 專案的資料夾分類、檔案歸類與專案 README（MD＋HTML 雙軌）SOP：九個固定的第 1 層資料夾（data / workspace / library / model / design / harness / veristand / output / documents）、相依鏈、三個判斷問句、分系統資料與整合測試資料的編排、機器讀與人讀的產出雙軌、命名規則，以及搬移檔案時的清單、確認與 MATLAB Project 路徑同步。凡使用者提到建立新的 MATLAB 專案、專案範本、寫或更新專案 README / 專案說明書、資料夾結構、資料夾分類、檔案該放哪裡、整理或盤點專案資料夾、搬移或改名 .m / .slx / .mat、新增一個 domain 或分系統的資料夾——即使沒有明說 skill 名稱——都應使用本 skill。建模工作流屬 pxa-modeler、.m 撰碼風格屬 pxa-matlab-style；本 skill 只管「檔案放哪裡、叫什麼、怎麼搬」。
 argument-hint: "[選填：新專案代號，或要歸類 / 盤點的檔案與資料夾]"
 ---
 
-# matlab-project — MATLAB / Simulink 專案資料夾分類與檔案歸類 v1.0
+# matlab-project — MATLAB / Simulink 專案資料夾分類與檔案歸類 v1.1
 
 > 📋 版本變更見 `CHANGELOG.md`。
-> 範本：`templates/CLAUDE.md`、`templates/README.md`（新專案直接複製後取代佔位字）。
+> 範本：`templates/CLAUDE.md`、`templates/README.md`、`templates/README.html`（新專案直接複製後取代佔位字）。
 
 定位：research-suite 的 MATLAB / Simulink 這條線共三個 skill——本 skill 管檔案放哪裡，
 `pxa-modeler` 管模型怎麼建與驗證，`pxa-matlab-style` 管 `.m` 怎麼寫。
@@ -15,13 +15,14 @@ argument-hint: "[選填：新專案代號，或要歸類 / 盤點的檔案與資
 **優先順序**：專案自己的 `CLAUDE.md` > 本 skill。專案已經有自己的資料夾規則時，照專案的；
 本 skill 只在專案沒有規則、或使用者要求照範本整理時才作為依據。不主動提議把既有專案改成範本結構。
 
-## 1. 三種工作
+## 1. 四種工作
 
 | 工作 | 觸發 | 產出 |
 |---|---|---|
 | A. 建立新專案 | 「開一個新專案」「照範本建資料夾」 | 資料夾骨架、`CLAUDE.md`、`README.md`（§7） |
 | B. 歸類檔案 | 「這個檔案放哪裡」、寫新檔之前 | 一行結論：位置＋檔名＋依據（§3、§4） |
 | C. 盤點既有專案 | 「整理資料夾」「檢查有沒有放錯」 | 盤點表 → 搬移清單 → 確認後執行（§8） |
+| D. 寫或更新 README | 「寫 README」「更新專案說明書」、資料夾或流程有變動之後 | `README.md` ＋ `README.html` 同步更新（§9） |
 
 寫任何新檔之前都先做 B：先決定位置與檔名，再寫內容。
 
@@ -38,7 +39,7 @@ argument-hint: "[選填：新專案代號，或要歸類 / 盤點的檔案與資
 | `veristand\` | SIL / HIL 即時目標機模型 | 即時目標機用的包裝模型與 init / sim 腳本 |
 | `output\` | 人類可讀產出 | `.xlsx` / `.txt` / 參數檔 / 圖檔；交接其他分系統或作報告素材 |
 | `documents\` | 技術報告草稿 | `.md` |
-| 根目錄 | 專案說明與協作指引 | `README.md`、`CLAUDE.md`、`<PROJECT>.prj` |
+| 根目錄 | 專案說明與協作指引 | `README.md`、`README.html`、`CLAUDE.md`、`<PROJECT>.prj` |
 
 `cache\`、`*\slprj\`、`resources\`、`.git\` 由工具自動產生，不讀寫、不搬移。
 
@@ -147,9 +148,9 @@ data\<分系統>\
 ## 7. 工作 A：建立新專案
 
 1. 問清楚三件事：專案顯示名 `<PROJECT>`、檔名前綴 `<project>`（小寫）、有哪些 domain 與分系統。
-2. 列寫入清單（要建的資料夾、兩份範本檔）→ 負責人確認。
+2. 列寫入清單（要建的資料夾、三份範本檔）→ 負責人確認。
 3. 建第 1 層資料夾（用不到的不建）；空資料夾要進版本控制時放 `.gitkeep`。
-4. 複製 `templates/CLAUDE.md`、`templates/README.md` 到專案根目錄，把 `<PROJECT>`、`<project>`、
+4. 複製 `templates/CLAUDE.md`、`templates/README.md`、`templates/README.html` 到專案根目錄，把 `<PROJECT>`、`<project>`、
    `<負責人>`、版本與 toolbox 取代成實際內容；範本中不適用的節刪掉，不留空欄。
 5. MATLAB Project（`.prj`）由負責人在 MATLAB 建立，或依 MathWorks 官方 skill
    `managing-simulink-projects` 操作；`library\`、`model\`、`design\<domain>\`、`harness\` 上 project path，
@@ -191,8 +192,62 @@ data\<分系統>\
   `load` / `save` 才會斷。
 - `slprj\` 與 `*.slxc` 是快取，不搬；搬完模型後由 MATLAB 重新產生。
 
-## 9. 回報格式
+## 9. 工作 D：README 雙軌（MD ＋ HTML）
+
+每個專案根目錄有兩份 README，內容同源、用途不同，**同一次寫入一起更新**。
+
+| 檔案 | 定位 | 讀者與場合 | 篇幅 |
+|---|---|---|---|
+| `README.md` | 文字精簡版 | 版本控制網頁、編輯器、協作 AI 開場快速讀取 | 一到兩頁：快速開始、資料夾表、工作流程、核心資料檔、命名、環境 |
+| `README.html` | 專案說明書 | 接手工程師、其他分系統、審查者；可直接用瀏覽器開啟或列印 | 完整：架構圖、資料交換圖、流程圖、方法、速查表、交接步驟、現況盤點 |
+
+### 9.1 `README.html` 的章節
+
+照 `templates/README.html`，節次固定，用不到的整節刪除並同步改目錄。
+
+| 節 | 內容 | 要點 |
+|---|---|---|
+| 0 | 這份文件怎麼讀 | 三種狀態標籤（已有 / 待整理 / 待建）；與 `CLAUDE.md`、`README.md` 的關係 |
+| 1 | 專案定位與範圍 | 一句話、項目表、名詞表 |
+| 2 | 快速開始 | 五步以內；執行前要知道的副作用 |
+| 3 | 軟體架構圖（分層） | 圖 A：八層＋兩條跨層直柱；相依鏈；各層責任與「不做的事」 |
+| 4 | 資料交換圖 | 圖 B：腳本、`workspace\`、模型、持久化資料；主要資料交換表 |
+| 5 | 工作流程 | 圖 C：外圈設計鏈、內圈迭代；每個 domain 一張「腳本 × 做什麼 × 讀 × 寫」表 |
+| 6 | 主模型 | 次系統與變體；設計用模型；求解器與步長 |
+| 7 | 核心方法 | 檔案分工、使用者要給的量、共用設定 |
+| 8 | 資料夾與檔案速查 | 每列帶狀態標籤；`workspace\` 檔案由誰產生 |
+| 9 | 產出與交接 | `output\` 檔案表；交給下游的逐步做法 |
+| 10 | 整合測試階段與資料 | 階段表、分析工具 |
+| 11 | 規範摘要 | 由 `CLAUDE.md` 摘出；註明以 `CLAUDE.md` 為準 |
+| 12 | 現況盤點與待整理事項 | 盤點日期；編號表，每列寫看到的事實 |
+| 13 | 接手者的第一天 | 六步以內；修改前要問自己的三件事 |
+
+### 9.2 撰寫規則
+
+| 項目 | 規則 |
+|---|---|
+| 事實來源 | 資料夾、檔名、流程、數值都對照專案資料夾的實際內容填寫，不憑記憶、不照舊文件抄；看不到的寫「未查證」 |
+| 現況盤點 | 第 12 節只寫看到的事實（哪個檔案、哪一處不一致），不寫推測；文件之間的出入也列進去 |
+| 單一檔案 | HTML 不引用外部 CSS、JS、字型、圖片；三張圖用範本的 HTML / CSS 方塊畫，不貼圖檔 |
+| 版面 | 沿用範本的 `<style>` 不改；顏色走 CSS 變數，淺色與深色都要能讀；寬圖放在 `.scroll` 裡 |
+| 標示 | 檔名、路徑、變數用 `<code>`；提醒用 `.note`、原則用 `.why`、已完成用 `.okb` |
+| 文件資訊 | 頁首寫文件版本與日期；內容有變動就更新 |
+| 路徑 | 一律相對專案根目錄；不寫個人電腦的絕對路徑 |
+| 對外 | 專案的 README 含專案內容，留在專案內；不放進公開的 repo |
+
+### 9.3 兩份的同步
+
+| 項目 | 規則 |
+|---|---|
+| 必須一致 | 資料夾用詞與用途、工作流程的腳本順序、核心資料檔名、命名規則、開發環境 |
+| 只在 HTML | 三張圖、方法說明、交接步驟、現況盤點、接手者的第一天 |
+| 更新時機 | 資料夾搬移或改名、流程增減腳本、交接檔格式改變、完成一項待整理事項之後 |
+| 做法 | 先改 `README.html`（完整版），再把必須一致的部分同步到 `README.md`；兩檔列在同一張寫入清單 |
+| 發現出入 | 兩份 README 之間、或 README 與 `CLAUDE.md`、實際資料夾之間不一致時，列出來回報；規則以 `CLAUDE.md` 為準，事實以資料夾為準 |
+| `README.md` 開頭 | 加一行指向完整版：`完整說明書見 README.html` |
+
+## 10. 回報格式
 
 - 工作 B：一行結論——`放 <位置>\<檔名>，依據 <§3 問句或 §4 列>`。
-- 工作 A、C：第一行結論，其後表格；最後列出尚待負責人裁定的項目。
+- 工作 A、C、D：第一行結論，其後表格；最後列出尚待負責人裁定的項目。
 - 規則沒涵蓋、或專案規則與本 skill 不同之處，只回報、不自行決定。

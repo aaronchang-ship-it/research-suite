@@ -1,5 +1,20 @@
 # matlab-project skill — CHANGELOG
 
+## v1.1（2026-11-21，plugin 1.16.0）
+
+起因：專案 README 改為 MD 與 HTML 雙軌並行——`README.md` 是文字精簡版，`README.html` 是完整的專案說明書。
+
+| # | 變更 | 落點 |
+|---|------|------|
+| 1 | 新增工作 D「寫或更新 README」：兩份的定位、HTML 章節、撰寫規則、同步規則 | SKILL.md §1、§9 |
+| 2 | 新增 `README.html` 範本：沿用維護者實際專案說明書的版面與三張圖（分層架構、資料交換、工作流程），內容換成佔位字 | `templates/README.html` |
+| 3 | `README.md` 範本加一行指向 `README.html`，根目錄檔案列補上 `README.html` | `templates/README.md` |
+| 4 | 建立新專案時一併複製 `README.html` | SKILL.md §2、§7 |
+
+待辦：
+- `README.html` 範本以無頭瀏覽器在深色模式、寬 1200 px 看過第 0–3 節與圖 A（版面正常）；
+  圖 B、圖 C、第 5 節以後、淺色模式與列印只檢查了標籤成對與目錄節次一致，尚未實際檢視。
+
 ## v1.0（2026-11-21，plugin 1.15.0）
 
 由維護者的 MATLAB / Simulink 專案範本（根目錄 `CLAUDE.md` 與 `README.md`）整理成 skill。

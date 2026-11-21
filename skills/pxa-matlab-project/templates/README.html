@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>〔PROJECT〕 專案說明書：使用說明與軟體架構</title>
+<meta name="description" content="〔專案一句話說明〕：分層架構圖、資料流、工作流程、資料夾與檔案速查、產出與交接、規範摘要、現況盤點。">
+<style>
+:root{
+  --bg:#f7f8fa; --panel:#ffffff; --ink:#1b2430; --ink2:#4a5566; --muted:#6b7686;
+  --line:#dde2ea; --accent:#1d4ed8; --accent2:#dbeafe; --code:#eef1f6;
+  --warn:#fef3c7; --warnline:#d97706; --ok:#dcfce7; --okline:#15803d;
+  --box:#ffffff; --boxline:#8a94a6; --boxink:#1b2430;
+  --L1:#e6edfb; --L2:#fdd58c; --L3:#f6cfd2; --L4:#b4dcc4; --L5:#fde0ad; --L6:#b9c4ea; --L7:#b3d6f3; --L8:#d9d3ec;
+  --P1:#ec8f8a; --P2:#acd98f; --hl:#a9d5fb; --bus:#f8cf5a; --busin:#cfe2f1; --svc:#e8b999; --per:#e7e5e2; --top:#f79a45; --side:#f3f6fa; --pill:#f8cf5a; --sm:#edc2a5; --proto:#b5d3b3;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f141b; --panel:#161d27; --ink:#e6ebf2; --ink2:#b5c0cf; --muted:#8b97a8;
+    --line:#2a3443; --accent:#7aa2ff; --accent2:#1e2c4a; --code:#1f2835;
+    --warn:#3a2f12; --warnline:#e0a43a; --ok:#14301f; --okline:#4ade80;
+    --box:#222c3a; --boxline:#5c6a80; --boxink:#e6ebf2;
+    --L1:#26324a; --L2:#5a4416; --L3:#55292e; --L4:#1f4632; --L5:#57431c; --L6:#2d3764; --L7:#1e435f; --L8:#3a3358;
+    --P1:#7a302c; --P2:#34591f; --hl:#1f4a70; --bus:#6b5411; --busin:#263a4a; --svc:#5e3d27; --per:#2b2f36; --top:#7d4513; --side:#18202b; --pill:#6b5411; --sm:#5e3d27; --proto:#2c4a2b;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 "Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif}
+a{color:var(--accent)}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font:13px/1.5 Consolas,"Cascadia Mono",monospace;word-break:break-word}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+header.doc h1{font-size:28px;line-height:1.3;margin:0 0 6px}
+header.doc p.sub{margin:0;color:var(--ink2);font-size:16px}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px;font-size:13px}
+.meta span{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 12px;color:var(--ink2)}
+nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 18px;margin:18px 0 22px}
+nav.toc ol{margin:0;padding-left:22px;columns:2;column-gap:32px;font-size:14px}
+nav.toc li{margin:2px 0;break-inside:avoid}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 22px 18px;margin:0 0 22px}
+h2{font-size:22px;margin:16px 0 8px;border-bottom:2px solid var(--accent2);padding-bottom:6px}
+h3{font-size:17px;margin:20px 0 6px}
+p{margin:8px 0}
+.why{background:var(--accent2);border-left:4px solid var(--accent);padding:8px 12px;border-radius:6px;margin:10px 0}
+.note{background:var(--warn);border-left:4px solid var(--warnline);padding:8px 12px;border-radius:6px;margin:10px 0;font-size:14px}
+.okb{background:var(--ok);border-left:4px solid var(--okline);padding:8px 12px;border-radius:6px;margin:10px 0;font-size:14px}
+ul,ol{padding-left:22px} li{margin:3px 0}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:6px 9px;vertical-align:top;text-align:left}
+th{background:var(--code);white-space:nowrap}
+.st{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:0 8px;border:1px solid;white-space:nowrap}
+.st.have{color:var(--okline);border-color:var(--okline)}
+.st.fix{color:var(--warnline);border-color:var(--warnline)}
+.st.new{color:var(--accent);border-color:var(--accent)}
+.eq{background:var(--code);border-radius:8px;padding:10px 14px;margin:10px 0;font:13.5px/1.7 Consolas,"Cascadia Mono",monospace;overflow-x:auto;white-space:pre}
+figure{margin:14px 0}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:16px}
+
+/* ---------- 圖 A：分層架構圖 ---------- */
+.arch{display:grid;grid-template-columns:118px 1fr 58px 58px;gap:12px 12px;min-width:960px;color:var(--boxink)}
+.arch .lab{grid-column:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;font-weight:600;line-height:1.3;padding:8px 8px 8px 22px;min-height:70px;
+  clip-path:polygon(22% 0,100% 0,100% 100%,22% 100%,0 50%);}
+.arch .band{grid-column:2;border-radius:8px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;border:1px solid rgba(0,0,0,.18)}
+.arch .band.wide{grid-column:2 / 5}
+.arch .bx{flex:1 1 130px;background:var(--box);border:1.5px solid var(--boxline);border-radius:3px;padding:6px 8px;font-size:12.5px;line-height:1.35;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.arch .bx b{font-size:13px}
+.arch .bx small{color:var(--muted);font-size:11.5px}
+.arch .bx.hl{background:var(--hl);font-weight:600}
+.arch .grp{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:8px}
+.arch .pillar{border-radius:8px;border:1px solid rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;letter-spacing:.2em;font-weight:700;font-size:14px;padding:8px 0}
+.c1{background:var(--L1)}.c2{background:var(--L2)}.c3{background:var(--L3)}.c4{background:var(--L4)}.c5{background:var(--L5)}.c6{background:var(--L6)}.c7{background:var(--L7)}.c8{background:var(--L8)}
+.arch .p1{grid-column:4;grid-row:2 / 8;background:var(--P1)}
+.arch .p2{grid-column:3;grid-row:2 / 8;background:var(--P2)}
+.arch .r1{grid-row:1}.arch .r2{grid-row:2}.arch .r3{grid-row:3}.arch .r4{grid-row:4}.arch .r5{grid-row:5}.arch .r6{grid-row:6}.arch .r7{grid-row:7}.arch .r8{grid-row:8}
+
+/* ---------- 圖 B：資料交換圖 ---------- */
+.hub{display:grid;grid-template-columns:150px 1fr 150px;gap:14px;min-width:960px;color:var(--boxink)}
+.hub .side{background:var(--side);border:1px solid var(--boxline);border-radius:4px;padding:0 10px 12px;display:flex;flex-direction:column;gap:10px}
+.hub .side h4{margin:0 -10px 4px;padding:8px 6px;text-align:center;font-size:14px;background:var(--busin);border-bottom:1px solid var(--boxline)}
+.hub .pl{background:var(--pill);border:1.5px solid var(--boxline);border-radius:12px;font-size:12.5px;text-align:center;padding:5px 6px;line-height:1.3}
+.hub .sq{background:var(--sm);border:1.5px solid var(--boxline);font-size:12.5px;text-align:center;padding:8px 6px;line-height:1.3}
+.hub .mid{display:flex;flex-direction:column;gap:6px}
+.hub .top{background:var(--top);border:1.5px solid var(--boxline);padding:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.hub .top .t{background:var(--box);border:1.5px solid var(--boxline);font-size:12.5px;text-align:center;padding:7px 4px;line-height:1.3;box-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.hub .links{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.hub .lk{display:flex;flex-direction:column;align-items:center;font-size:20px;line-height:1;color:var(--muted)}
+.hub .lk span{background:var(--proto);border:1.5px solid var(--boxline);font-size:12px;padding:3px 8px;margin:2px 0;color:var(--boxink);line-height:1.3}
+.hub .bus{background:var(--bus);border:1.5px solid var(--boxline);border-radius:46px;padding:16px 46px}
+.hub .bus h4{margin:0 0 8px;text-align:center;font-size:14px}
+.hub .bus .cells{display:grid;grid-template-columns:repeat(5,1fr)}
+.hub .bus .cells div{background:var(--busin);border:1px solid var(--boxline);font-size:12.5px;text-align:center;padding:10px 4px;line-height:1.3}
+.hub .svc{background:var(--svc);border:1.5px solid var(--boxline);border-bottom:none;padding:8px 10px 12px}
+.hub .per{background:var(--per);border:1.5px solid var(--boxline);padding:8px 10px 12px}
+.hub .svc h4,.hub .per h4{margin:0 0 8px;text-align:center;font-size:14px}
+.hub .row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.hub .ov{background:var(--box);border:1.5px solid var(--boxline);border-radius:22px;font-size:12.5px;text-align:center;padding:8px 6px;line-height:1.3}
+.hub .cy{background:var(--box);border:1.5px solid var(--boxline);border-radius:50%/14px;font-size:12.5px;text-align:center;padding:12px 6px 8px;line-height:1.3}
+
+/* ---------- 圖 C：設計流程 ---------- */
+.flow{min-width:900px;color:var(--boxink)}
+.loop{border:2px dashed var(--boxline);border-radius:12px;padding:26px 12px 12px;position:relative;margin-top:18px}
+.loop>.tt{position:absolute;top:-12px;left:14px;background:var(--bg);padding:0 8px;font-size:13px;font-weight:700;color:var(--ink)}
+.loop.outer{border-color:var(--accent)}
+.loop.inner{border-color:var(--warnline)}
+.steps{display:flex;gap:6px;align-items:stretch}
+.stp{flex:1;background:var(--box);border:1.5px solid var(--boxline);border-radius:6px;padding:8px 6px;font-size:12.5px;line-height:1.35;text-align:center}
+.stp b{display:block;font-size:13px;margin-bottom:2px}
+.stp small{color:var(--muted);font-size:11.5px}
+.arr{flex:none;align-self:center;color:var(--muted);font-size:18px}
+.io{display:flex;gap:10px;margin:10px 0;align-items:center;justify-content:center;font-size:13px;flex-wrap:wrap}
+.io .cap{background:var(--L1);border:1.5px solid var(--boxline);border-radius:999px;padding:5px 16px}
+.back{font-size:12.5px;color:var(--ink2);text-align:center;margin-top:8px}
+
+@media (max-width:720px){nav.toc ol{columns:1} header.doc h1{font-size:23px} section{padding:4px 14px 14px}}
+@media print{section{break-inside:avoid}.scroll{overflow:visible}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 範本用法：把〔 〕內的文字換成專案實際內容；用不到的節整節刪除並同步改目錄。
+     所有事實（資料夾、檔名、流程、狀態）都要對照專案資料夾的實際內容填寫。
+     本檔是單一檔案：不引用外部 CSS、JS、字型或圖片。 -->
+
+<header class="doc">
+  <h1>〔PROJECT〕 專案說明書：使用說明與軟體架構</h1>
+  <p class="sub">〔一句話：對象、平台、涵蓋的工作〕</p>
+  <div class="meta">
+    <span>文件版本：〔v1.0〕</span>
+    <span>日期：〔YYYY-MM-DD〕</span>
+    <span>MATLAB Project：〔PROJECT〕.prj</span>
+    <span>讀者：專案成員、接手工程師、協作 AI</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="目錄">
+  <ol start="0">
+    <li><a href="#s0">這份文件怎麼讀</a></li>
+    <li><a href="#s1">專案定位與範圍</a></li>
+    <li><a href="#s2">快速開始</a></li>
+    <li><a href="#s3">軟體架構圖（分層）</a></li>
+    <li><a href="#s4">資料交換圖</a></li>
+    <li><a href="#s5">工作流程</a></li>
+    <li><a href="#s6">主模型</a></li>
+    <li><a href="#s7">核心方法</a></li>
+    <li><a href="#s8">資料夾與檔案速查</a></li>
+    <li><a href="#s9">產出與交接</a></li>
+    <li><a href="#s10">整合測試階段與資料</a></li>
+    <li><a href="#s11">規範摘要</a></li>
+    <li><a href="#s12">現況盤點與待整理事項</a></li>
+    <li><a href="#s13">接手者的第一天</a></li>
+  </ol>
+</nav>
+
+<section id="s0">
+  <h2>0. 這份文件怎麼讀</h2>
+  <p>這是專案的總說明書，目的是讓第一次接觸本專案的人在一小時內知道：專案在做什麼、程式怎麼分層、每個資料夾放什麼、要照什麼順序執行、產出在哪裡、有哪些規則不能違反。文件自成一體，不需要其他對話紀錄即可閱讀。</p>
+  <p>專案內容分三種狀態，以標籤區分：</p>
+  <ul>
+    <li><span class="st have">已有</span> 檔案存在，流程已建立並使用中。</li>
+    <li><span class="st fix">待整理</span> 檔案存在，但與目前的規劃不一致，或流程尚未走完。</li>
+    <li><span class="st new">待建</span> 已規劃、資料夾已開，但內容尚未建立。</li>
+  </ul>
+  <div class="why"><b>與其他文件的關係：</b><code>CLAUDE.md</code> 是協作規則的正式版本（授權、寫入流程、撰碼慣例），本文件第 11 節只是摘要；兩者有出入時以 <code>CLAUDE.md</code> 為準。<code>README.md</code> 是本文件的文字精簡版，資料夾、流程與命名必須與本文件一致。</div>
+  <p>路徑一律以專案根目錄為起點，寫成 <code>design\〔domain〕\</code> 這種相對形式。</p>
+</section>
+
+<section id="s1">
+  <h2>1. 專案定位與範圍</h2>
+  <p><b>一句話：</b>〔本專案由什麼資料建立什麼模型、完成哪些設計或分析、產出交給誰、用什麼資料回頭檢驗。〕</p>
+  <div class="tbl"><table>
+    <tr><th>項目</th><th>內容</th></tr>
+    <tr><td>對象</td><td>〔機型 / 產品與其組成〕</td></tr>
+    <tr><td>平台</td><td>MATLAB / Simulink 〔版本〕，以 MATLAB Project <code>〔PROJECT〕.prj</code> 管理路徑</td></tr>
+    <tr><td>工作範疇</td><td>〔建模、設計、驗證、參數、資料分析〕</td></tr>
+    <tr><td>不做的事</td><td>〔例：不修改下游軟體的原始碼〕</td></tr>
+    <tr><td>Toolbox</td><td>〔所需 toolbox〕</td></tr>
+    <tr><td>版本控制</td><td>git（分支 <code>〔branch〕</code>）；commit 由專案負責人執行</td></tr>
+    <tr><td>負責人</td><td>〔姓名，單位〕</td></tr>
+  </table></div>
+
+  <h3>名詞</h3>
+  <div class="tbl"><table>
+    <tr><th>名詞</th><th>意思</th></tr>
+    <tr><td>〔縮寫〕</td><td>〔全名與在本專案的意思〕</td></tr>
+    <tr><td>〔檔名前綴或變體代號〕</td><td>〔代表什麼，舉一個檔名為例〕</td></tr>
+  </table></div>
+</section>
+
+<section id="s2">
+  <h2>2. 快速開始</h2>
+  <ol>
+    <li>以 MATLAB 開啟 <code>〔PROJECT〕.prj</code>。Project 會設定路徑；所有腳本都假設 current folder 是專案根目錄。</li>
+    <li>確認 <code>workspace\</code> 內有基礎資料檔：〔列出檔名〕。</li>
+    <li>進入 <code>design\〔domain〕\</code>，依第 5 節的順序執行：〔init → trim → linearize → design → sim〕。</li>
+    <li>結果的 <code>.mat</code> 在 <code>workspace\</code>；人可以直接讀的報表與圖在 <code>output\〔子資料夾〕\</code>。</li>
+    <li>〔要把結果交給下游時怎麼做，見第 9 節。〕</li>
+  </ol>
+  <div class="note"><b>執行前先知道：</b>〔哪些腳本會覆寫 <code>workspace\</code> 與 <code>output\</code> 的檔案、哪些會清掉 base workspace、哪些執行時間長。〕</div>
+</section>
+
+<section id="s3">
+  <h2>3. 軟體架構圖（分層）</h2>
+  <p>由上而下八層，上層依賴下層。右側兩條直柱是跨層的共通機制。藍底方塊是已規劃但尚未建立的位置。</p>
+  <figure>
+    <div class="scroll">
+      <div class="arch" role="img" aria-label="專案軟體分層架構圖">
+        <div class="lab c1 r1">使用入口</div>
+        <div class="band c1 wide r1">
+          <div class="bx"><b>MATLAB Project</b><small>〔PROJECT〕.prj，設定路徑</small></div>
+          <div class="bx"><b>設計腳本</b><small>〔逐支執行的流程〕</small></div>
+          <div class="bx"><b>〔App 或工具〕</b><small>〔用途〕</small></div>
+          <div class="bx"><b>AI 協作</b><small>依 CLAUDE.md 撰寫、分析、驗證</small></div>
+        </div>
+
+        <div class="lab c2 r2">交付成果</div>
+        <div class="band c2 r2">
+          <div class="bx"><b>設計報表</b><small>output\〔子資料夾〕：txt、xlsx、png</small></div>
+          <div class="bx"><b>〔交接檔〕</b><small>output\〔子資料夾〕</small></div>
+          <div class="bx"><b>技術報告</b><small>documents\</small></div>
+        </div>
+
+        <div class="lab c3 r3">設計與驗證</div>
+        <div class="band c3 r3">
+          <div class="grp">
+            <div class="bx"><b>design\〔domain 1〕</b><small>〔內容〕</small></div>
+            <div class="bx"><b>design\〔domain 2〕</b><small>〔內容〕</small></div>
+          </div>
+          <div class="grp">
+            <div class="bx"><b>veristand\</b><small>SIL / HIL 即時目標機模型</small></div>
+            <div class="bx hl">harness\（次系統與模組的獨立驗證）</div>
+          </div>
+        </div>
+
+        <div class="lab c4 r4">主模型</div>
+        <div class="band c4 r4">
+          <div class="bx"><b>model\〔主模型〕.slx</b><small>整機 plant，不含測試</small></div>
+          <div class="bx"><b>〔次系統 1〕</b><small>〔內容〕</small></div>
+          <div class="bx"><b>〔次系統 2〕</b><small>〔內容〕</small></div>
+          <div class="bx"><b>〔變體切換〕</b><small>〔切換什麼〕</small></div>
+        </div>
+
+        <div class="lab c5 r5">模組庫</div>
+        <div class="band c5 r5">
+          <div class="bx hl">library\（通用次系統；換機型只換參數）</div>
+        </div>
+
+        <div class="lab c6 r6">參數與結果</div>
+        <div class="band c6 r6">
+          <div class="bx"><b>基礎參數</b><small>〔檔名〕</small></div>
+          <div class="bx"><b>Bus 定義</b><small>〔檔名〕</small></div>
+          <div class="bx"><b>設計鏈結果</b><small>〔Trim、Linearized、Design Results〕</small></div>
+        </div>
+
+        <div class="lab c7 r7">分系統與測試資料</div>
+        <div class="band c7 r7">
+          <div class="grp">
+            <div class="bx"><b>〔分系統 1〕</b><small>〔內容〕</small></div>
+            <div class="bx"><b>〔分系統 2〕</b><small>〔內容〕</small></div>
+          </div>
+          <div class="grp">
+            <div class="bx"><b>sil</b></div>
+            <div class="bx"><b>hil1</b></div>
+            <div class="bx"><b>hil2</b></div>
+            <div class="bx"><b>ft</b></div>
+          </div>
+        </div>
+
+        <div class="lab c8 r8">執行環境</div>
+        <div class="band c8 wide r8">
+          <div class="bx"><b>MATLAB / Simulink</b><small>含第 1 節所列 Toolbox</small></div>
+          <div class="bx"><b>〔下游軟體〕</b><small>〔角色〕</small></div>
+          <div class="bx"><b>〔即時目標機〕</b></div>
+          <div class="bx"><b>〔作業系統〕</b></div>
+        </div>
+
+        <div class="pillar p2">git 版本控制</div>
+        <div class="pillar p1">撰碼與寫入規範</div>
+      </div>
+    </div>
+    <figcaption>圖 A　分層架構。「參數與結果」層就是 <code>workspace\</code>，「分系統與測試資料」層就是 <code>data\</code>。「git 版本控制」負責變更歷程；「撰碼與寫入規範」即 <code>CLAUDE.md</code>，適用於每一層的 m-file 與每一次寫入。</figcaption>
+  </figure>
+
+  <h3>相依鏈</h3>
+  <div class="eq">data\  →  workspace\*.mat  →  library\  →  model\  →  { design\ , harness\ }  →  output\</div>
+
+  <h3>各層責任</h3>
+  <div class="tbl"><table>
+    <tr><th>層</th><th>資料夾</th><th>責任</th><th>不做的事</th></tr>
+    <tr><td>分系統與測試資料</td><td><code>data\</code></td><td>保存分系統原始交付與整合測試紀錄；前處理腳本把原始資料轉成 <code>.mat</code></td><td><code>source</code> 只增不改</td></tr>
+    <tr><td>參數與結果</td><td><code>workspace\</code></td><td>全專案唯一的 <code>.mat</code> 交換區</td><td>不放腳本</td></tr>
+    <tr><td>模組庫</td><td><code>library\</code></td><td>可跨機型重用的次系統；數值一律由 <code>workspace\*.mat</code> 提供</td><td>不直接讀 <code>data\</code></td></tr>
+    <tr><td>主模型</td><td><code>model\</code></td><td>整機組裝，用來 trim、線性化、跑 SIL</td><td>不含測試</td></tr>
+    <tr><td>設計與驗證</td><td><code>design\</code>、<code>harness\</code>、<code>veristand\</code></td><td>設計；次系統與模組的驗證；即時目標機模型</td><td>取參數與驗證不用同一筆資料</td></tr>
+    <tr><td>交付成果</td><td><code>output\</code>、<code>documents\</code></td><td>人可以直接讀的報表、圖、交接檔、技術報告</td><td>腳本不回頭讀 <code>output\</code>〔例外寫在第 9 節〕</td></tr>
+  </table></div>
+
+  <div class="why"><b>判斷一個模型該放哪裡：</b>換機型只換參數就能用，放 <code>library\</code>；拿來 trim、線性化、跑 SIL，放 <code>model\</code>；刪掉後整機模擬仍能跑，放 <code>harness\</code>。</div>
+</section>
+
+<section id="s4">
+  <h2>4. 資料交換圖</h2>
+  <p>腳本彼此不直接傳遞變數，全部經過 <code>workspace\</code> 的 <code>.mat</code>。同一條設計鏈的結果收在同一個 struct array，每個 case 一筆，後段腳本往同一筆追加欄位。</p>
+  <figure>
+    <div class="scroll">
+      <div class="hub" role="img" aria-label="資料交換圖">
+        <div class="side">
+          <h4>共用工具</h4>
+          <div class="pl">〔*_init 初始化〕</div>
+          <div class="pl">〔共用函式〕</div>
+          <div class="pl">〔繪圖樣式〕</div>
+          <div class="pl">〔分析工具〕</div>
+        </div>
+
+        <div class="mid">
+          <div class="top">
+            <div class="t">〔trim〕</div>
+            <div class="t">〔linearize〕</div>
+            <div class="t">〔tuner〕</div>
+            <div class="t">〔design〕</div>
+            <div class="t">〔sim〕</div>
+          </div>
+          <div class="links">
+            <div class="lk">⇅<span>〔TrimResults〕</span>⇅</div>
+            <div class="lk">⇅<span>〔LinearizedResults〕</span>⇅</div>
+            <div class="lk">⇅<span>〔DesignResults〕</span>⇅</div>
+            <div class="lk">⇅<span>〔基礎參數檔〕</span>⇅</div>
+          </div>
+          <div class="bus">
+            <h4>workspace\*.mat（唯一的資料交換區）</h4>
+            <div class="cells">
+              <div>〔results struct array〕</div><div>〔增益〕</div><div>〔參數〕</div><div>〔分配〕</div><div>〔Bus 定義〕</div>
+            </div>
+          </div>
+          <div class="links">
+            <div class="lk">⇅<span>〔findop / linearize〕</span>⇅</div>
+            <div class="lk">⇅<span>〔set_param〕</span>⇅</div>
+            <div class="lk">⇅<span>〔sim〕</span>⇅</div>
+            <div class="lk">⇅<span>〔txt / xlsx / png〕</span>⇅</div>
+          </div>
+          <div class="svc">
+            <h4>Simulink 模型</h4>
+            <div class="row">
+              <div class="ov">〔主模型〕</div>
+              <div class="ov">〔配平與線性化用模型〕</div>
+              <div class="ov">〔線性設計模型〕</div>
+              <div class="ov">〔參考設計模型〕</div>
+              <div class="ov">〔閉迴路模擬模型〕</div>
+            </div>
+          </div>
+          <div class="per">
+            <h4>持久化資料</h4>
+            <div class="row">
+              <div class="cy">data\ 分系統</div>
+              <div class="cy">data\ 測試階段</div>
+              <div class="cy">〔工具 session〕</div>
+              <div class="cy">output\ 報表</div>
+              <div class="cy">output\ 交接檔</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side">
+          <h4>品質管理</h4>
+          <div class="sq">Code Analyzer<br><small>警告清光</small></div>
+          <div class="sq">〔對照基準〕<br><small>〔設計與參考並列〕</small></div>
+          <div class="sq">〔摘要表〕<br><small>〔指標〕</small></div>
+          <div class="sq">git diff<br><small>每次寫入可檢視、可還原</small></div>
+        </div>
+      </div>
+    </div>
+    <figcaption>圖 B　資料交換。上方是腳本；中間是 <code>workspace\</code>；下方是 Simulink 模型與持久化資料。標籤是實際交換的檔案或操作。</figcaption>
+  </figure>
+
+  <h3>主要資料交換</h3>
+  <div class="tbl"><table>
+    <tr><th>來源</th><th>目的</th><th>資料</th><th>形式</th></tr>
+    <tr><td><code>data\</code> 前處理腳本</td><td><code>workspace\</code></td><td>〔資料〕</td><td>.mat</td></tr>
+    <tr><td><code>〔*_trim〕</code></td><td><code>〔*_linearize〕</code></td><td>〔資料〕</td><td><code>〔結果檔名〕</code></td></tr>
+    <tr><td><code>〔*_design〕</code></td><td>其他分系統、報告</td><td>〔資料〕</td><td><code>output\〔子資料夾〕\</code></td></tr>
+  </table></div>
+</section>
+
+<section id="s5">
+  <h2>5. 工作流程</h2>
+  <p>〔各 domain 是否走同一套流程、腳本名稱差在哪裡。〕</p>
+  <figure>
+    <div class="scroll">
+      <div class="flow" role="img" aria-label="工作流程">
+        <div class="io"><span class="cap">data\ 分系統資料</span><span class="arr">→</span><span class="cap">workspace\ 基礎參數檔</span><span class="arr">→</span><span class="cap">model\〔主模型〕.slx</span></div>
+        <div class="loop outer">
+          <span class="tt">設計鏈（每個 domain 各一條）</span>
+          <div class="steps">
+            <div class="stp"><b>1 〔trim〕</b><small>〔做法〕</small></div><div class="arr">→</div>
+            <div class="stp"><b>2 〔linearize〕</b><small>〔做法〕</small></div><div class="arr">→</div>
+            <div class="stp"><b>3 〔design〕</b><small>〔做法〕</small></div><div class="arr">→</div>
+            <div class="stp"><b>4 〔sim〕</b><small>〔做法〕</small></div>
+          </div>
+          <div class="loop inner">
+            <span class="tt">第 3 步內部：〔每一軸 / 每一個 case〕</span>
+            <div class="steps">
+              <div class="stp"><b>3a 〔步驟〕</b><small>〔做法〕</small></div><div class="arr">→</div>
+              <div class="stp"><b>3b 〔步驟〕</b><small>〔做法〕</small></div><div class="arr">→</div>
+              <div class="stp"><b>3c 〔步驟〕</b><small>〔做法〕</small></div>
+            </div>
+            <div class="back">↺ 指標不符合時：〔調整哪些量後重跑〕</div>
+          </div>
+        </div>
+        <div class="io"><span class="cap">workspace\ 結果檔</span><span class="cap">output\ 報表與圖</span><span class="arr">→</span><span class="cap">〔交接檔〕</span><span class="arr">→</span><span class="cap">SIL → HIL1 → HIL2 → FT</span></div>
+      </div>
+    </div>
+    <figcaption>圖 C　工作流程。測試階段發現的問題回到第 1 步或第 3 步。</figcaption>
+  </figure>
+
+  <h3>〔domain〕流程</h3>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>腳本（<code>design\〔domain〕\</code>）</th><th>做什麼</th><th>讀</th><th>寫</th></tr>
+    <tr><td>0</td><td><code>〔project〕_〔domain〕_init</code></td><td>〔說明〕</td><td>〔檔案〕</td><td>—</td></tr>
+    <tr><td>1</td><td><code>〔project〕_〔domain〕_trim</code></td><td>〔說明〕</td><td>〔檔案〕</td><td><code>〔結果檔〕</code></td></tr>
+  </table></div>
+
+  <div class="note"><b>已驗證、不可更動的流程：</b>〔哪些腳本在保護清單內，修改前必須由負責人逐檔指名。〕</div>
+</section>
+
+<section id="s6">
+  <h2>6. 主模型</h2>
+  <p><code>model\〔主模型〕.slx</code>：〔頂層輸入與輸出埠數量、用途〕。主要次系統如下：</p>
+  <div class="tbl"><table>
+    <tr><th>次系統</th><th>內容</th><th>變體</th></tr>
+    <tr><td>〔次系統〕</td><td>〔內容〕</td><td>〔變體選項或 —〕</td></tr>
+  </table></div>
+  <p>〔變體由哪個腳本的哪個旗標選擇；模型的數值來自哪些 <code>workspace\</code> 檔案。〕</p>
+
+  <h3>設計用模型</h3>
+  <div class="tbl"><table>
+    <tr><th>模型</th><th>用途</th></tr>
+    <tr><td><code>〔模型檔名〕</code></td><td>〔用途〕</td></tr>
+  </table></div>
+  <p>〔求解器與步長。〕</p>
+</section>
+
+<section id="s7">
+  <h2>7. 核心方法</h2>
+  <p>〔本專案最主要的設計或分析方法：架構、分幾段、每段的依據。寫到接手者能看懂主腳本為止。〕</p>
+
+  <h3>檔案分工</h3>
+  <div class="tbl"><table>
+    <tr><th>檔案</th><th>角色</th></tr>
+    <tr><td><code>〔主腳本〕</code></td><td>〔角色〕</td></tr>
+    <tr><td><code>〔共用函式〕</code></td><td>〔角色〕</td></tr>
+  </table></div>
+
+  <h3>使用者要給的量</h3>
+  <div class="tbl"><table>
+    <tr><th>變數</th><th>意思</th><th>目前設定</th></tr>
+    <tr><td><code>〔變數〕</code></td><td>〔意思，單位〕</td><td>〔數值〕</td></tr>
+  </table></div>
+
+  <h3>共用設定</h3>
+  <div class="tbl"><table>
+    <tr><th>項目</th><th>數值</th></tr>
+    <tr><td>〔項目〕</td><td>〔數值與單位〕</td></tr>
+  </table></div>
+  <div class="note"><b>〔同一設定寫在兩處時在此提醒：〕</b>修改其中一份時，另一份要同步修改。</div>
+</section>
+
+<section id="s8">
+  <h2>8. 資料夾與檔案速查</h2>
+  <h3>資料夾</h3>
+  <div class="tbl"><table>
+    <tr><th>資料夾</th><th>用途</th><th>狀態</th></tr>
+    <tr><td><code>model\</code></td><td>〔主模型〕</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>design\〔domain〕\</code></td><td>〔內容〕</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>workspace\</code></td><td><code>.mat</code> 集中區</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>library\</code></td><td>通用次系統 library</td><td><span class="st new">待建</span></td></tr>
+    <tr><td><code>harness\</code></td><td>次系統開迴路驗證、library 模組獨立驗證</td><td><span class="st new">待建</span></td></tr>
+    <tr><td><code>veristand\</code></td><td>SIL / HIL 即時目標機模型與腳本</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>data\</code></td><td>分系統資料與整合測試資料</td><td><span class="st fix">待整理</span> 〔原因〕</td></tr>
+    <tr><td><code>output\</code></td><td>人可以直接讀的產出</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>documents\</code></td><td>技術報告草稿</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>cache\</code>、<code>resources\</code>、<code>.git\</code>、各處 <code>slprj\</code></td><td>建置快取、Project 內部資源、版本庫</td><td>不可手動編輯</td></tr>
+  </table></div>
+
+  <h3>分系統資料的編排</h3>
+  <div class="eq">data\&lt;分系統&gt;\
+├─ source\   分系統原始交付（csv / txt / xlsx），只增不改
+├─ mat\      由 source 轉出的 .mat
+├─ figure\   分析圖
+└─ *.m       前處理與分析腳本，放分系統根目錄</div>
+  <div class="tbl"><table>
+    <tr><th>分系統</th><th>內容</th><th>狀態</th></tr>
+    <tr><td><code>〔分系統〕\</code></td><td>〔資料與腳本〕</td><td><span class="st have">已有</span></td></tr>
+  </table></div>
+
+  <h3><code>workspace\</code> 的檔案</h3>
+  <div class="tbl"><table>
+    <tr><th>檔案</th><th>內容</th><th>由誰產生</th></tr>
+    <tr><td><code>〔檔名〕</code></td><td>〔內容〕</td><td>〔腳本或來源〕</td></tr>
+  </table></div>
+  <div class="why"><b>例外：</b>〔不放 <code>workspace\</code> 的 <code>.mat</code> 與理由，例如工具 session 檔留在 <code>design\</code> 原處。〕</div>
+</section>
+
+<section id="s9">
+  <h2>9. 產出與交接</h2>
+  <p>設計腳本每次執行都採雙軌輸出：<code>.mat</code> 存 <code>workspace\</code> 給程式讀；同一份內容以 txt、xlsx、png 存 <code>output\</code> 給人讀，用於分系統交接與報告素材。每次執行會覆寫同名檔案。</p>
+  <div class="tbl"><table>
+    <tr><th>檔案（<code>output\〔子資料夾〕\</code>）</th><th>內容</th></tr>
+    <tr><td><code>〔檔名〕</code></td><td>〔內容〕</td></tr>
+  </table></div>
+
+  <h3>〔把結果交給下游的步驟〕</h3>
+  <ol>
+    <li>〔執行哪支腳本。〕</li>
+    <li>〔開啟哪個檔案、核對什麼。〕</li>
+    <li>〔複製哪個範圍、貼到哪裡。〕</li>
+  </ol>
+  <div class="note"><b>注意：</b>〔腳本回頭讀 <code>output\</code> 的例外、綁定檔名的變數、尚未自動化的步驟。〕</div>
+</section>
+
+<section id="s10">
+  <h2>10. 整合測試階段與資料</h2>
+  <div class="tbl"><table>
+    <tr><th>階段</th><th>資料夾</th><th>組成</th><th>檢驗目的</th></tr>
+    <tr><td>SIL</td><td><code>data\sil\</code></td><td>純軟體迴路模擬</td><td>〔目的〕</td></tr>
+    <tr><td>HIL1</td><td><code>data\hil1\</code></td><td>〔部分硬體〕＋模擬器</td><td>〔目的〕</td></tr>
+    <tr><td>HIL2</td><td><code>data\hil2\</code></td><td>〔結構與激振器〕＋模擬器</td><td>〔目的〕</td></tr>
+    <tr><td>FT</td><td><code>data\ft\</code></td><td>實機測試</td><td>〔目的〕</td></tr>
+  </table></div>
+  <p>只測單一分系統特性的試驗屬分系統資料，放 <code>data\〔分系統〕\</code>，不屬於整合測試階段。</p>
+  <h3>分析工具</h3>
+  <div class="tbl"><table>
+    <tr><th>位置</th><th>檔案</th><th>說明</th></tr>
+    <tr><td><code>data\</code> 根目錄</td><td>〔檔名〕</td><td>跨階段共用</td></tr>
+  </table></div>
+</section>
+
+<section id="s11">
+  <h2>11. 規範摘要</h2>
+  <p>完整內容在 <code>CLAUDE.md</code>。以下是接手者最容易踩到的部分。</p>
+
+  <h3>寫入與版本控制</h3>
+  <div class="tbl"><table>
+    <tr><th>項目</th><th>規則</th></tr>
+    <tr><td>協作 AI 的寫入</td><td>只寫負責人指定的檔案；先列寫入清單，得到明確確認後才執行；確認只對該次清單有效</td></tr>
+    <tr><td>刪除</td><td>協作 AI 不刪除；列出清單由負責人處理</td></tr>
+    <tr><td>git</td><td>〔誰執行 commit；協作 AI 可以執行哪些指令〕</td></tr>
+    <tr><td>保護清單</td><td>〔需逐檔指名才可修改的檔案〕</td></tr>
+    <tr><td>絕不觸碰</td><td><code>.git\</code>、<code>cache\</code>、任何 <code>slprj\</code>、<code>resources\</code></td></tr>
+  </table></div>
+
+  <h3>MATLAB 撰碼</h3>
+  <div class="tbl"><table>
+    <tr><th>項目</th><th>規則</th></tr>
+    <tr><td>〔項目〕</td><td>〔由 <code>CLAUDE.md</code> 摘出最常用的幾條〕</td></tr>
+  </table></div>
+
+  <h3>繪圖</h3>
+  <div class="tbl"><table>
+    <tr><th>項目</th><th>規則</th></tr>
+    <tr><td>〔項目〕</td><td>〔figure 尺寸、字型、標籤〕</td></tr>
+  </table></div>
+</section>
+
+<section id="s12">
+  <h2>12. 現況盤點與待整理事項</h2>
+  <p>盤點日期 〔YYYY-MM-DD〕，依據是專案資料夾的實際內容。</p>
+  <div class="okb">
+    <b>已完成：</b>
+    <ul style="margin:4px 0 0">
+      <li>〔已完成的流程或整理。〕</li>
+    </ul>
+  </div>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>項目</th><th>現況</th><th>狀態</th></tr>
+    <tr><td>1</td><td>〔項目〕</td><td>〔看到的事實：哪個檔案、哪一處不一致〕</td><td><span class="st fix">待整理</span></td></tr>
+    <tr><td>2</td><td>〔項目〕</td><td>〔資料夾已開、內容為空〕</td><td><span class="st new">待建</span></td></tr>
+    <tr><td>3</td><td>文件之間的出入</td><td>〔<code>README.md</code>、<code>CLAUDE.md</code> 與實際資料夾不一致之處〕</td><td><span class="st fix">待整理</span></td></tr>
+  </table></div>
+</section>
+
+<section id="s13">
+  <h2>13. 接手者的第一天</h2>
+  <ol>
+    <li>讀本文件第 1–5 節，再讀 <code>CLAUDE.md</code> 的授權與撰碼兩節。</li>
+    <li>開啟 <code>〔PROJECT〕.prj</code>，開啟主模型，對照第 6 節看一遍次系統。</li>
+    <li>開啟 <code>〔一支代表性的腳本〕</code>，讀檔頭：這是全專案檔頭與流程寫法的範本。</li>
+    <li>開啟 <code>〔一份代表性的報表〕</code>，對照第 7 節看懂每一列。</li>
+    <li>依序執行一條流程：〔腳本順序〕。執行前先確認 <code>workspace\</code> 與 <code>output\</code> 已在版本控制內或已備份。</li>
+    <li>挑第 12 節的一項待整理事項，與負責人確認後開始。</li>
+  </ol>
+  <div class="why"><b>修改任何東西之前先問自己三件事：</b>這個檔案在保護清單內嗎？改動後下游腳本讀到的 <code>workspace\*.mat</code> 欄位還一致嗎？〔平行的 domain〕需要同步修改嗎？</div>
+</section>
+
+</div>
+</body>
+</html>
