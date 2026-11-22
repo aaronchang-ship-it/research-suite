@@ -1,10 +1,10 @@
 ---
 name: pxa-matlab-project
-description: MATLAB / Simulink 專案的資料夾分類、檔案歸類與專案 README（MD＋HTML 雙軌）SOP：九個固定的第 1 層資料夾（data / workspace / library / model / design / harness / veristand / output / documents）、相依鏈、三個判斷問句、分系統資料與整合測試資料的編排、機器讀與人讀的產出雙軌、命名規則，以及搬移檔案時的清單、確認與 MATLAB Project 路徑同步。凡使用者提到建立新的 MATLAB 專案、專案範本、寫或更新專案 README / 專案說明書、資料夾結構、資料夾分類、檔案該放哪裡、整理或盤點專案資料夾、搬移或改名 .m / .slx / .mat、新增一個 domain 或分系統的資料夾——即使沒有明說 skill 名稱——都應使用本 skill。建模工作流屬 pxa-modeler、.m 撰碼風格屬 pxa-matlab-style；本 skill 只管「檔案放哪裡、叫什麼、怎麼搬」。
+description: MATLAB / Simulink 專案的資料夾分類、檔案歸類與專案 README（MD＋HTML 雙軌）SOP：九個固定的第 1 層資料夾（data / workspace / library / model / design / harness / veristand / output / documents）加上 temp 收件匣、相依鏈、三個判斷問句、data 依整合層級（module / system / simulation / ground / flight）的編排、ulog 檔名規則、機器讀與人讀的產出雙軌、命名規則，以及搬移檔案時的清單、確認與 MATLAB Project 路徑同步。凡使用者提到建立新的 MATLAB 專案、專案範本、寫或更新專案 README / 專案說明書、資料夾結構、資料夾分類、檔案該放哪裡、整理或盤點專案資料夾、歸檔 temp 收件匣裡的新檔案、ulog 命名、搬移或改名 .m / .slx / .mat / .ulg、新增一個 domain、模組或分系統的資料夾——即使沒有明說 skill 名稱——都應使用本 skill。建模工作流屬 pxa-modeler、.m 撰碼風格屬 pxa-matlab-style；本 skill 只管「檔案放哪裡、叫什麼、怎麼搬」。
 argument-hint: "[選填：新專案代號，或要歸類 / 盤點的檔案與資料夾]"
 ---
 
-# matlab-project — MATLAB / Simulink 專案資料夾分類與檔案歸類 v1.1
+# matlab-project — MATLAB / Simulink 專案資料夾分類與檔案歸類 v1.2
 
 > 📋 版本變更見 `CHANGELOG.md`。
 > 範本：`templates/CLAUDE.md`、`templates/README.md`、`templates/README.html`（新專案直接複製後取代佔位字）。
@@ -15,14 +15,15 @@ argument-hint: "[選填：新專案代號，或要歸類 / 盤點的檔案與資
 **優先順序**：專案自己的 `CLAUDE.md` > 本 skill。專案已經有自己的資料夾規則時，照專案的；
 本 skill 只在專案沒有規則、或使用者要求照範本整理時才作為依據。不主動提議把既有專案改成範本結構。
 
-## 1. 四種工作
+## 1. 五種工作
 
 | 工作 | 觸發 | 產出 |
 |---|---|---|
 | A. 建立新專案 | 「開一個新專案」「照範本建資料夾」 | 資料夾骨架、`CLAUDE.md`、`README.md`（§7） |
 | B. 歸類檔案 | 「這個檔案放哪裡」、寫新檔之前 | 一行結論：位置＋檔名＋依據（§3、§4） |
 | C. 盤點既有專案 | 「整理資料夾」「檢查有沒有放錯」 | 盤點表 → 搬移清單 → 確認後執行（§8） |
-| D. 寫或更新 README | 「寫 README」「更新專案說明書」、資料夾或流程有變動之後 | `README.md` ＋ `README.html` 同步更新（§9） |
+| D. 寫或更新 README | 「寫 README」「更新專案說明書」、資料夾或流程有變動之後 | `README.md` ＋ `README.html` 同步更新（§10） |
+| E. `temp\` 收件匣歸檔 | 對話開始、或使用者提到新檔案時主動檢查 `temp\`；有檔案就啟動 | 歸檔清單 → 確認後搬移與改名（§9） |
 
 寫任何新檔之前都先做 B：先決定位置與檔名，再寫內容。
 
@@ -30,20 +31,24 @@ argument-hint: "[選填：新專案代號，或要歸類 / 盤點的檔案與資
 
 | 資料夾 | 用途 | 放什麼 |
 |---|---|---|
-| `data\` | 各分系統交付的資料、整合測試資料 | 原始交付、轉出的 `.mat`、分析圖、前處理腳本 |
+| `data\` | 依整合層級編排的資料（§5） | 模組與分系統的原始交付、轉出的 `.mat`、分析圖、該層專屬的腳本與模型；SIL / HIL / 飛測的 ulog |
 | `workspace\` | `.mat` 集中區 | 參數、trim / 線性化 / 設計結果；各腳本統一由此讀寫 |
-| `library\` | 通用次系統 library `.slx` | 推進、風場、大氣等獨立建模的模組 |
+| `library\` | 通用次系統 library `.slx`；跨階段共用的 `.m` 工具 | 推進、風場、大氣等獨立建模的模組；`library\ulog\`（ulog 讀取與繪圖工具） |
 | `model\` | 主 plant 模型 | 整機組裝模型；不含測試 |
 | `design\` | 設計腳本 | init / trim / linearize / design / sim，依 domain 分子資料夾 |
 | `harness\` | 驗證 | 次系統開迴路驗證、library 模組獨立驗證（`.slx` ＋ 測試 `.m`） |
 | `veristand\` | SIL / HIL 即時目標機模型 | 即時目標機用的包裝模型與 init / sim 腳本 |
 | `output\` | 人類可讀產出 | `.xlsx` / `.txt` / 參數檔 / 圖檔；交接其他分系統或作報告素材 |
 | `documents\` | 技術報告草稿 | `.md` |
+| `temp\` | 收件匣（§9） | 新收到、尚未分類的檔案；歸檔後清空 |
 | 根目錄 | 專案說明與協作指引 | `README.md`、`README.html`、`CLAUDE.md`、`<PROJECT>.prj` |
 
 `cache\`、`*\slprj\`、`resources\`、`.git\` 由工具自動產生，不讀寫、不搬移。
 
 用不到的資料夾可以不開（例如沒有即時目標機就沒有 `veristand\`），但不改名、不合併。
+
+`temp\` 是第 1 層資料夾，但不在相依鏈內：任何腳本、模型都不得讀取或引用 `temp\` 的路徑，
+也不加入 MATLAB path。常態為空，檔案不在此長期存放。
 
 ### 2.1 相依鏈
 
@@ -61,7 +66,10 @@ data\ → workspace\*.mat → library\ → model\ → { design\, harness\ }
 
 ## 3. 模型放哪裡：三個問句
 
-依序問，第一個答「是」的就是位置。
+前置判斷：只處理某個模組或分系統自己的資料、不被其他模型引用的 `.slx`
+（例：由量測資料辨識參數用的模型），放該資料的 L3 根目錄（§5.2），不進下面三問。
+
+其餘的模型依序問，第一個答「是」的就是位置。
 
 | # | 問句 | 是 → 放 |
 |---|---|---|
@@ -75,12 +83,14 @@ data\ → workspace\*.mat → library\ → model\ → { design\, harness\ }
 
 | 檔案 | 位置 |
 |---|---|
-| 分系統交付的原始檔（csv / txt / xlsx） | `data\<分系統>\source\`，只增不改 |
-| 由原始檔轉出的 `.mat` | `data\<分系統>\mat\` |
-| 資料分析後的圖 | `data\<分系統>\figure\` |
-| 前處理 / 分析原始資料的 `.m` | `data\<分系統>\` 根目錄（不另開 scripts） |
-| 整合測試的 log 與紀錄 | `data\<階段>\`（§5.2） |
-| 跨階段共用的分析 `.m` | `data\` 根目錄 |
+| 模組或分系統交付的原始檔（csv / txt / xlsx） | `data\module\<元件>\source\` 或 `data\system\<分系統>\source\`，只增不改 |
+| 由原始檔轉出的 `.mat` | 同一個 L3 的 `mat\` |
+| 資料分析後的圖 | 同一個 L3 的 `figure\` |
+| 該 L3 專屬的分析腳本、設計腳本 `.m` 與模型 `.slx` | L3 根目錄（不另開 `scripts\`、`model\`） |
+| SIL / HIL1 / HIL2 / 飛測的 ulog 與其衍生檔 | `data\simulation\sil\`、`data\ground\hil1\`、`data\ground\hil2\`、`data\flight\`（§5.3、§6.3） |
+| 只給單一階段用的分析 `.m` | 該階段的資料夾 |
+| 兩個階段以上共用的 ulog 讀取、繪圖 `.m` | `library\ulog\` |
+| 新收到、尚未分類的檔案 | `temp\`（§9） |
 | 模型執行時要讀的參數 `.mat` | `workspace\` |
 | trim / 線性化 / 設計 / 模擬結果 `.mat` | `workspace\<project>_<DOMAIN>_<Stage>Results.mat` |
 | library `.slx` | `library\` |
@@ -97,30 +107,64 @@ data\ → workspace\*.mat → library\ → model\ → { design\, harness\ }
 
 ## 5. `data\` 的編排
 
-### 5.1 分系統資料
+`data\` 的第 2 層（L2）是整合層級，由下而上五級：module → system → simulation → ground → flight。
+文件一律照這個順序列出，不靠資料夾名稱排序；資料夾名稱不帶編號前綴。
+
+### 5.1 L2：整合層級
+
+| L2 | 對象 | 放什麼 | L3 命名 |
+|---|---|---|---|
+| `module` | 單一模組（元件） | 模組本身的資料：規格、性能圖、單體測試 | 廠牌或元件名（`<廠牌>`、`<元件>`） |
+| `system` | 多個模組整合成的分系統 | 多模組整合測試，或該分系統的數學模型資料 | `aerodynamics` / `propulsion` / `structure` / `performance` |
+| `simulation` | 多個分系統整合，純軟體 | SIL 的 ulog | `sil` |
+| `ground` | 多個分系統整合，實體硬體在地面 | HIL 的 ulog | `hil1`、`hil2` |
+| `flight` | 整機 | 飛測（ft）的 ulog 與飛後分析 | 無，檔案直接放 `flight\` |
+
+依序問，第一個答「是」的就是 L2：
+
+| # | 問句 | 是 → 放 |
+|---|---|---|
+| 1 | 只涉及一個元件？ | `module` |
+| 2 | 多個元件組成一個分系統，或是該分系統的數學模型？ | `system` |
+| 3 | 多個分系統整合？ | 純軟體 → `simulation`；有實體硬體且在地面 → `ground`；實際飛行 → `flight` |
+
+- 整機性能（aircraft performance）是數學模型資料，歸 `system\performance`，不因為用到某廠牌的元件就放 `module`。
+- 只測單一分系統特性的試驗（例：地面振動試驗）屬該分系統，放 `system\structure`。
+
+### 5.2 `module`、`system` 的 L3 內部
+
+L3 資料夾根目錄放四種東西，彼此同一層：
 
 ```
-data\<分系統>\
-├─ source\   分系統原始交付（csv / txt / xlsx），只增不改
+data\module\<元件>\   或   data\system\<分系統>\
+├─ source\   原始交付（csv / txt / xlsx），只增不改
 ├─ mat\      由 source 轉出的 .mat
-├─ figure\   分析後圖檔
-└─ *.m       前處理 / 分析腳本
+├─ figure\   分析圖
+└─ *.m、*.slx   該 L3 專屬的分析腳本、設計腳本與模型檔
 ```
 
-- 分系統例：`aerodynamics`、`performance`、`propulsion`、`structure`。
 - `source` / `mat` / `figure` 底下可以再依測試分一層（例 `structure\source\gvt\`）。**最深到這一層為止**。
-- 只測單一分系統特性的試驗（例：地面振動試驗）屬分系統資料，不放整合測試。
+- 腳本與模型檔不另開 `scripts\` 或 `model\` 子資料夾。
+- L3 根目錄的 `.slx` 不上 project path：執行前切到該資料夾，或由同資料夾的腳本以相對路徑載入。
+  會被其他模型引用的 `.slx` 不放這裡，依 §3 判定。
+- 新增一個 L3（新廠牌、新分系統）要先列進寫入清單，由負責人確認。
 
-### 5.2 整合測試資料
+### 5.3 `simulation`、`ground`、`flight`
 
-`data\<階段>\`，依測試階段分：
+只收四個階段的 ulog：
 
-| 階段 | 定義 |
-|---|---|
-| `sil` | 純軟體迴路模擬 |
-| `hil1` | 部分硬體（例：電池＋推進）＋模擬器，檢驗硬體迴路下的功能性與穩定性 |
-| `hil2` | 結構＋激振器＋模擬器，檢驗結構耦合下的功能性與穩定性 |
-| `ft` | 實機測試 |
+| 階段 | 位置 | 定義 |
+|---|---|---|
+| SIL | `data\simulation\sil\` | 純軟體迴路模擬 |
+| HIL1 | `data\ground\hil1\` | 部分硬體（例：電池＋推進）＋模擬器，檢驗硬體迴路下的功能性與穩定性 |
+| HIL2 | `data\ground\hil2\` | 結構＋激振器＋模擬器，檢驗結構耦合下的功能性與穩定性 |
+| FT | `data\flight\` | 實機飛行測試 |
+
+- 資料夾內平放，不另開架次、日期或 `source` / `mat` / `figure` 子資料夾；靠檔名排序（§6.3）。
+- 由某個 ulog 衍生的 `.mat`、`.csv`、圖放在同一個資料夾，沿用該 ulog 的主檔名。
+- 只給單一階段用的分析腳本放該階段的資料夾；兩個階段以上共用的讀取與繪圖工具放 `library\ulog\`，
+  不放 `data\` 根目錄。`library\ulog\` 的內部檔案結構本 skill 不規定。
+- 機上地面測試（非 HIL）資料不在收件範圍，不為它開資料夾；收到時留在 `temp\` 並回報（§9）。
 
 ## 6. 產出與命名
 
@@ -140,10 +184,27 @@ data\<分系統>\
 |---|---|
 | `.m` / `.slx` 檔名 | `<project>_<domain>_<purpose>`，snake_case；離開資料夾仍看得出歸屬 |
 | 結果檔 | `workspace\<project>_<DOMAIN>_<Trim/Linearized/Design>Results.mat` |
-| 資料檔日期 | `YYMMDD` 或 `YYYYMMDD` |
+| 資料檔日期 | `YYMMDD` 或 `YYYYMMDD`（ulog 一律照 §6.3） |
 | 典型流程 | `_init` → `_trim` → `_linearize` → `_design` → `_sim`，每一步的輸入是上一步的結果檔 |
 
 `.m` 的檔頭、分段與撰碼風格見 `pxa-matlab-style`。
+
+### 6.3 ulog 檔名
+
+格式：`<階段>_<機型版本>_NO<架次>_<YYYYMMDD>_<HHMM>`
+例：`HIL1_UAV01MK20_NO001_20261122_1430.ulg`
+
+| 欄位 | 規則 |
+|---|---|
+| 階段 | `SIL` / `HIL1` / `HIL2` / `FT`，大寫 |
+| 機型版本 | 機型＋兩碼版本，不含小數點：`UAV01MK20` 代表 UAV01 MK2.0，後續 `UAV01MK21`、`UAV01MK22`… |
+| 架次 | `NO` ＋三碼流水號，補零（`NO001`） |
+| 日期 | `YYYYMMDD`，四碼西元年 |
+| 時間 | `HHMM`，24 小時制 |
+
+- 不另開架次或日期子資料夾；同一資料夾內直接以檔名排序。
+- 衍生檔（`.mat`、`.csv`、圖）沿用同一主檔名，只換副檔名或加後綴。
+- 這條規則只適用於 ulog 與其衍生檔；進 `source\` 的原始交付保留原檔名。
 
 ## 7. 工作 A：建立新專案
 
@@ -153,8 +214,8 @@ data\<分系統>\
 4. 複製 `templates/CLAUDE.md`、`templates/README.md`、`templates/README.html` 到專案根目錄，把 `<PROJECT>`、`<project>`、
    `<負責人>`、版本與 toolbox 取代成實際內容；範本中不適用的節刪掉，不留空欄。
 5. MATLAB Project（`.prj`）由負責人在 MATLAB 建立，或依 MathWorks 官方 skill
-   `managing-simulink-projects` 操作；`library\`、`model\`、`design\<domain>\`、`harness\` 上 project path，
-   `data\`、`workspace\`、`output\`、`documents\` 不上 path（腳本以相對專案根目錄的路徑讀寫）。
+   `managing-simulink-projects` 操作；`library\`（含 `library\ulog\`）、`model\`、`design\<domain>\`、`harness\` 上 project path，
+   `data\`、`workspace\`、`output\`、`documents\`、`temp\` 不上 path（腳本以相對專案根目錄的路徑讀寫）。
 6. 回報建立了什麼、哪些佔位字還沒填。
 
 ## 8. 工作 C：盤點與搬移
@@ -163,7 +224,8 @@ data\<分系統>\
 
 ### 8.1 盤點（唯讀）
 
-1. 列出第 1 層與第 2 層；標出不在 §2 用詞內的資料夾、深度超過 §5 的資料夾。
+1. 列出第 1 層與第 2 層；標出不在 §2 用詞內的資料夾、`data\` 第 2 層不在 §5.1 五個整合層級內的資料夾、
+   深度超過 §5 的資料夾。
 2. 逐檔依 §3、§4 判定應在位置；判不出來的另列。
 3. 每個要搬的檔案，搜尋誰引用它：檔名字串、`load` / `save` / `readtable` 的路徑、
    `load_system` / `sim` 的模型名、library link、model reference。
@@ -192,7 +254,39 @@ data\<分系統>\
   `load` / `save` 才會斷。
 - `slprj\` 與 `*.slxc` 是快取，不搬；搬完模型後由 MATLAB 重新產生。
 
-## 9. 工作 D：README 雙軌（MD ＋ HTML）
+## 9. 工作 E：`temp\` 收件匣歸檔
+
+`temp\` 是專案根目錄的收件匣：負責人把新收到、尚未分類的檔案先放進來，由 Claude 依本 skill 歸檔。
+對話開始、或負責人提到新檔案時，主動檢查 `temp\`；有檔案就直接啟動下列流程，不等點名。
+專案沒有 `temp\`、或專案 `CLAUDE.md` 對 `temp\` 另有定義時，不啟動。
+
+### 9.1 步驟
+
+| # | 步驟 | 做法 |
+|---|---|---|
+| 1 | 盤點 | 列出 `temp\` 內所有檔案（含子資料夾） |
+| 2 | 判定 | 逐檔套用 §3、§4、§5.1 的問句決定目的地；必要時讀檔頭或內容，不只看檔名 |
+| 3 | 命名 | 依目的地的命名規則決定新檔名（ulog 依 §6.3） |
+| 4 | 歸檔清單 | `# × 原檔名 × 目的地路徑 × 新檔名 × 判定依據` |
+| 5 | 搬移 | 負責人回覆確認才執行；確認只對該次清單有效 |
+| 6 | 回報 | 列出搬移結果，並指出 `temp\` 還剩什麼 |
+
+### 9.2 判定不了的檔案
+
+| 情況 | 處理 |
+|---|---|
+| 無法判定目的地，或缺命名所需資訊（例：ulog 不知道架次、機型版本、屬於 hil1 還是 hil2） | 留在 `temp\`，清單中標「待確認」並寫明缺什麼；不猜 |
+| 不在收件範圍（例：機上地面測試資料） | 留在 `temp\`，回報負責人；不為它開新資料夾 |
+| 與目的地既有檔案同名 | 不覆蓋，列入清單請負責人裁定 |
+
+### 9.3 限制
+
+- 只搬移與改名，不修改檔案內容，不刪除任何檔案（重複檔、暫存檔由負責人自行刪除）。
+- 進 `source\` 的檔案保留原始檔名與內容（只增不改）；檔名規則只適用於 ulog 與其衍生檔。
+- 需要新開 L3 資料夾（新廠牌、新分系統）時，在清單中單獨列出，連同歸檔一併確認。
+- 搬移的其餘規則（保護檔逐檔指名、位元組相同、project path 同步）照 §8.2。
+
+## 10. 工作 D：README 雙軌（MD ＋ HTML）
 
 每個專案根目錄有兩份 README，內容同源、用途不同，**同一次寫入一起更新**。
 
@@ -201,7 +295,7 @@ data\<分系統>\
 | `README.md` | 文字精簡版 | 版本控制網頁、編輯器、協作 AI 開場快速讀取 | 一到兩頁：快速開始、資料夾表、工作流程、核心資料檔、命名、環境 |
 | `README.html` | 專案說明書 | 接手工程師、其他分系統、審查者；可直接用瀏覽器開啟或列印 | 完整：架構圖、資料交換圖、流程圖、方法、速查表、交接步驟、現況盤點 |
 
-### 9.1 `README.html` 的章節
+### 10.1 `README.html` 的章節
 
 照 `templates/README.html`，節次固定，用不到的整節刪除並同步改目錄。
 
@@ -217,12 +311,12 @@ data\<分系統>\
 | 7 | 核心方法 | 檔案分工、使用者要給的量、共用設定 |
 | 8 | 資料夾與檔案速查 | 每列帶狀態標籤；`workspace\` 檔案由誰產生 |
 | 9 | 產出與交接 | `output\` 檔案表；交給下游的逐步做法 |
-| 10 | 整合測試階段與資料 | 階段表、分析工具 |
+| 10 | 整合測試階段與資料 | 階段表、ulog 檔名規則、分析工具（`library\ulog\`） |
 | 11 | 規範摘要 | 由 `CLAUDE.md` 摘出；註明以 `CLAUDE.md` 為準 |
 | 12 | 現況盤點與待整理事項 | 盤點日期；編號表，每列寫看到的事實 |
 | 13 | 接手者的第一天 | 六步以內；修改前要問自己的三件事 |
 
-### 9.2 撰寫規則
+### 10.2 撰寫規則
 
 | 項目 | 規則 |
 |---|---|
@@ -235,7 +329,7 @@ data\<分系統>\
 | 路徑 | 一律相對專案根目錄；不寫個人電腦的絕對路徑 |
 | 對外 | 專案的 README 含專案內容，留在專案內；不放進公開的 repo |
 
-### 9.3 兩份的同步
+### 10.3 兩份的同步
 
 | 項目 | 規則 |
 |---|---|
@@ -246,8 +340,8 @@ data\<分系統>\
 | 發現出入 | 兩份 README 之間、或 README 與 `CLAUDE.md`、實際資料夾之間不一致時，列出來回報；規則以 `CLAUDE.md` 為準，事實以資料夾為準 |
 | `README.md` 開頭 | 加一行指向完整版：`完整說明書見 README.html` |
 
-## 10. 回報格式
+## 11. 回報格式
 
 - 工作 B：一行結論——`放 <位置>\<檔名>，依據 <§3 問句或 §4 列>`。
-- 工作 A、C、D：第一行結論，其後表格；最後列出尚待負責人裁定的項目。
+- 工作 A、C、D、E：第一行結論，其後表格；最後列出尚待負責人裁定的項目。
 - 規則沒涵蓋、或專案規則與本 skill 不同之處，只回報、不自行決定。

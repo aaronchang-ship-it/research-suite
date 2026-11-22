@@ -245,6 +245,7 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
         <div class="lab c5 r5">模組庫</div>
         <div class="band c5 r5">
           <div class="bx hl">library\（通用次系統；換機型只換參數）</div>
+          <div class="bx"><b>library\ulog\</b><small>跨階段共用的 ulog 讀取與繪圖工具</small></div>
         </div>
 
         <div class="lab c6 r6">參數與結果</div>
@@ -254,17 +255,16 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
           <div class="bx"><b>設計鏈結果</b><small>〔Trim、Linearized、Design Results〕</small></div>
         </div>
 
-        <div class="lab c7 r7">分系統與測試資料</div>
+        <div class="lab c7 r7">資料（整合層級）</div>
         <div class="band c7 r7">
           <div class="grp">
-            <div class="bx"><b>〔分系統 1〕</b><small>〔內容〕</small></div>
-            <div class="bx"><b>〔分系統 2〕</b><small>〔內容〕</small></div>
+            <div class="bx"><b>module</b><small>〔元件 1〕、〔元件 2〕</small></div>
+            <div class="bx"><b>system</b><small>〔分系統 1〕、〔分系統 2〕</small></div>
           </div>
           <div class="grp">
-            <div class="bx"><b>sil</b></div>
-            <div class="bx"><b>hil1</b></div>
-            <div class="bx"><b>hil2</b></div>
-            <div class="bx"><b>ft</b></div>
+            <div class="bx"><b>simulation</b><small>sil</small></div>
+            <div class="bx"><b>ground</b><small>hil1、hil2</small></div>
+            <div class="bx"><b>flight</b><small>ft</small></div>
           </div>
         </div>
 
@@ -280,7 +280,7 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
         <div class="pillar p1">撰碼與寫入規範</div>
       </div>
     </div>
-    <figcaption>圖 A　分層架構。「參數與結果」層就是 <code>workspace\</code>，「分系統與測試資料」層就是 <code>data\</code>。「git 版本控制」負責變更歷程；「撰碼與寫入規範」即 <code>CLAUDE.md</code>，適用於每一層的 m-file 與每一次寫入。</figcaption>
+    <figcaption>圖 A　分層架構。「參數與結果」層就是 <code>workspace\</code>，「資料（整合層級）」層就是 <code>data\</code>，由左到右是 module → system → simulation → ground → flight。「git 版本控制」負責變更歷程；「撰碼與寫入規範」即 <code>CLAUDE.md</code>，適用於每一層的 m-file 與每一次寫入。</figcaption>
   </figure>
 
   <h3>相依鏈</h3>
@@ -289,9 +289,9 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
   <h3>各層責任</h3>
   <div class="tbl"><table>
     <tr><th>層</th><th>資料夾</th><th>責任</th><th>不做的事</th></tr>
-    <tr><td>分系統與測試資料</td><td><code>data\</code></td><td>保存分系統原始交付與整合測試紀錄；前處理腳本把原始資料轉成 <code>.mat</code></td><td><code>source</code> 只增不改</td></tr>
+    <tr><td>資料（整合層級）</td><td><code>data\</code></td><td>依整合層級保存模組與分系統的原始交付、SIL / HIL / 飛測的 ulog；L3 根目錄的腳本把原始資料轉成 <code>.mat</code></td><td><code>source</code> 只增不改</td></tr>
     <tr><td>參數與結果</td><td><code>workspace\</code></td><td>全專案唯一的 <code>.mat</code> 交換區</td><td>不放腳本</td></tr>
-    <tr><td>模組庫</td><td><code>library\</code></td><td>可跨機型重用的次系統；數值一律由 <code>workspace\*.mat</code> 提供</td><td>不直接讀 <code>data\</code></td></tr>
+    <tr><td>模組庫</td><td><code>library\</code></td><td>可跨機型重用的次系統；數值一律由 <code>workspace\*.mat</code> 提供。<code>library\ulog\</code> 放跨階段共用的 ulog 工具</td><td><code>.slx</code> 不直接讀 <code>data\</code></td></tr>
     <tr><td>主模型</td><td><code>model\</code></td><td>整機組裝，用來 trim、線性化、跑 SIL</td><td>不含測試</td></tr>
     <tr><td>設計與驗證</td><td><code>design\</code>、<code>harness\</code>、<code>veristand\</code></td><td>設計；次系統與模組的驗證；即時目標機模型</td><td>取參數與驗證不用同一筆資料</td></tr>
     <tr><td>交付成果</td><td><code>output\</code>、<code>documents\</code></td><td>人可以直接讀的報表、圖、交接檔、技術報告</td><td>腳本不回頭讀 <code>output\</code>〔例外寫在第 9 節〕</td></tr>
@@ -353,8 +353,8 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
           <div class="per">
             <h4>持久化資料</h4>
             <div class="row">
-              <div class="cy">data\ 分系統</div>
-              <div class="cy">data\ 測試階段</div>
+              <div class="cy">data\ module、system</div>
+              <div class="cy">data\ ulog</div>
               <div class="cy">〔工具 session〕</div>
               <div class="cy">output\ 報表</div>
               <div class="cy">output\ 交接檔</div>
@@ -389,7 +389,7 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
   <figure>
     <div class="scroll">
       <div class="flow" role="img" aria-label="工作流程">
-        <div class="io"><span class="cap">data\ 分系統資料</span><span class="arr">→</span><span class="cap">workspace\ 基礎參數檔</span><span class="arr">→</span><span class="cap">model\〔主模型〕.slx</span></div>
+        <div class="io"><span class="cap">data\ 模組與分系統資料</span><span class="arr">→</span><span class="cap">workspace\ 基礎參數檔</span><span class="arr">→</span><span class="cap">model\〔主模型〕.slx</span></div>
         <div class="loop outer">
           <span class="tt">設計鏈（每個 domain 各一條）</span>
           <div class="steps">
@@ -474,24 +474,35 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
     <tr><td><code>model\</code></td><td>〔主模型〕</td><td><span class="st have">已有</span></td></tr>
     <tr><td><code>design\〔domain〕\</code></td><td>〔內容〕</td><td><span class="st have">已有</span></td></tr>
     <tr><td><code>workspace\</code></td><td><code>.mat</code> 集中區</td><td><span class="st have">已有</span></td></tr>
-    <tr><td><code>library\</code></td><td>通用次系統 library</td><td><span class="st new">待建</span></td></tr>
+    <tr><td><code>library\</code></td><td>通用次系統 library；<code>library\ulog\</code> 跨階段共用的 ulog 工具</td><td><span class="st new">待建</span></td></tr>
     <tr><td><code>harness\</code></td><td>次系統開迴路驗證、library 模組獨立驗證</td><td><span class="st new">待建</span></td></tr>
     <tr><td><code>veristand\</code></td><td>SIL / HIL 即時目標機模型與腳本</td><td><span class="st have">已有</span></td></tr>
-    <tr><td><code>data\</code></td><td>分系統資料與整合測試資料</td><td><span class="st fix">待整理</span> 〔原因〕</td></tr>
+    <tr><td><code>data\</code></td><td>依整合層級編排：module、system、simulation、ground、flight</td><td><span class="st fix">待整理</span> 〔原因〕</td></tr>
     <tr><td><code>output\</code></td><td>人可以直接讀的產出</td><td><span class="st have">已有</span></td></tr>
     <tr><td><code>documents\</code></td><td>技術報告草稿</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>temp\</code></td><td>收件匣：新收到、尚未分類的檔案；不上 path、不被腳本與模型引用，常態為空</td><td><span class="st have">已有</span></td></tr>
     <tr><td><code>cache\</code>、<code>resources\</code>、<code>.git\</code>、各處 <code>slprj\</code></td><td>建置快取、Project 內部資源、版本庫</td><td>不可手動編輯</td></tr>
   </table></div>
 
-  <h3>分系統資料的編排</h3>
-  <div class="eq">data\&lt;分系統&gt;\
-├─ source\   分系統原始交付（csv / txt / xlsx），只增不改
+  <h3><code>data\</code> 的編排</h3>
+  <p>第 2 層是整合層級，由下而上：module → system → simulation → ground → flight。</p>
+  <div class="tbl"><table>
+    <tr><th>第 2 層</th><th>對象</th><th>放什麼</th><th>第 3 層命名</th></tr>
+    <tr><td><code>module</code></td><td>單一模組（元件）</td><td>模組本身的資料：規格、性能圖、單體測試</td><td>廠牌或元件名</td></tr>
+    <tr><td><code>system</code></td><td>多個模組整合成的分系統</td><td>多模組整合測試，或該分系統的數學模型資料</td><td><code>aerodynamics</code>、<code>propulsion</code>、<code>structure</code>、<code>performance</code></td></tr>
+    <tr><td><code>simulation</code></td><td>多個分系統整合，純軟體</td><td>SIL 的 ulog</td><td><code>sil</code></td></tr>
+    <tr><td><code>ground</code></td><td>多個分系統整合，實體硬體在地面</td><td>HIL 的 ulog</td><td><code>hil1</code>、<code>hil2</code></td></tr>
+    <tr><td><code>flight</code></td><td>整機</td><td>飛測的 ulog 與飛後分析</td><td>無，檔案直接放 <code>flight\</code></td></tr>
+  </table></div>
+  <div class="eq">data\module\&lt;元件&gt;\   或   data\system\&lt;分系統&gt;\
+├─ source\   原始交付（csv / txt / xlsx），只增不改
 ├─ mat\      由 source 轉出的 .mat
 ├─ figure\   分析圖
-└─ *.m       前處理與分析腳本，放分系統根目錄</div>
+└─ *.m、*.slx   該資料夾專屬的分析腳本、設計腳本與模型檔</div>
   <div class="tbl"><table>
-    <tr><th>分系統</th><th>內容</th><th>狀態</th></tr>
-    <tr><td><code>〔分系統〕\</code></td><td>〔資料與腳本〕</td><td><span class="st have">已有</span></td></tr>
+    <tr><th>資料夾</th><th>內容</th><th>狀態</th></tr>
+    <tr><td><code>module\〔元件〕\</code></td><td>〔資料與腳本〕</td><td><span class="st have">已有</span></td></tr>
+    <tr><td><code>system\〔分系統〕\</code></td><td>〔資料與腳本〕</td><td><span class="st have">已有</span></td></tr>
   </table></div>
 
   <h3><code>workspace\</code> 的檔案</h3>
@@ -523,16 +534,27 @@ figcaption{font-size:13px;color:var(--muted);margin-top:8px}
   <h2>10. 整合測試階段與資料</h2>
   <div class="tbl"><table>
     <tr><th>階段</th><th>資料夾</th><th>組成</th><th>檢驗目的</th></tr>
-    <tr><td>SIL</td><td><code>data\sil\</code></td><td>純軟體迴路模擬</td><td>〔目的〕</td></tr>
-    <tr><td>HIL1</td><td><code>data\hil1\</code></td><td>〔部分硬體〕＋模擬器</td><td>〔目的〕</td></tr>
-    <tr><td>HIL2</td><td><code>data\hil2\</code></td><td>〔結構與激振器〕＋模擬器</td><td>〔目的〕</td></tr>
-    <tr><td>FT</td><td><code>data\ft\</code></td><td>實機測試</td><td>〔目的〕</td></tr>
+    <tr><td>SIL</td><td><code>data\simulation\sil\</code></td><td>純軟體迴路模擬</td><td>〔目的〕</td></tr>
+    <tr><td>HIL1</td><td><code>data\ground\hil1\</code></td><td>〔部分硬體〕＋模擬器</td><td>〔目的〕</td></tr>
+    <tr><td>HIL2</td><td><code>data\ground\hil2\</code></td><td>〔結構與激振器〕＋模擬器</td><td>〔目的〕</td></tr>
+    <tr><td>FT</td><td><code>data\flight\</code></td><td>實機飛行測試</td><td>〔目的〕</td></tr>
   </table></div>
-  <p>只測單一分系統特性的試驗屬分系統資料，放 <code>data\〔分系統〕\</code>，不屬於整合測試階段。</p>
+  <p>這四個資料夾只收 ulog 與由它衍生的檔案，資料夾內平放、靠檔名排序。只測單一分系統特性的試驗屬該分系統，放 <code>data\system\〔分系統〕\</code>。機上地面測試（非 HIL）資料不在收件範圍。</p>
+  <h3>ulog 檔名</h3>
+  <div class="eq">&lt;階段&gt;_&lt;機型版本&gt;_NO&lt;架次&gt;_&lt;YYYYMMDD&gt;_&lt;HHMM&gt;.ulg
+例：HIL1_〔機型〕MK20_NO001_20261122_1430.ulg</div>
+  <div class="tbl"><table>
+    <tr><th>欄位</th><th>規則</th></tr>
+    <tr><td>階段</td><td><code>SIL</code>、<code>HIL1</code>、<code>HIL2</code>、<code>FT</code>，大寫</td></tr>
+    <tr><td>機型版本</td><td>機型＋兩碼版本，不含小數點（MK2.0 寫成 <code>MK20</code>）</td></tr>
+    <tr><td>架次</td><td><code>NO</code>＋三碼流水號，補零</td></tr>
+    <tr><td>日期與時間</td><td><code>YYYYMMDD</code>、<code>HHMM</code>（24 小時制）</td></tr>
+  </table></div>
+  <p>衍生檔（<code>.mat</code>、<code>.csv</code>、圖）沿用同一主檔名，只換副檔名或加後綴。</p>
   <h3>分析工具</h3>
   <div class="tbl"><table>
     <tr><th>位置</th><th>檔案</th><th>說明</th></tr>
-    <tr><td><code>data\</code> 根目錄</td><td>〔檔名〕</td><td>跨階段共用</td></tr>
+    <tr><td><code>library\ulog\</code></td><td>〔檔名〕</td><td>跨階段共用的 ulog 讀取與繪圖</td></tr>
   </table></div>
 </section>
 

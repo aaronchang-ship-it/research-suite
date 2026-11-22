@@ -117,8 +117,11 @@
 |---|---|
 | 模型分層 | 相依鏈：`data\` → `workspace\*.mat` → `library\` → `model\` → {`design\`, `harness\`}。判斷：換機型只換參數就能用 → `library\`；拿來 trim / 線性化 / 跑 SIL → `model\`；刪掉後整機模擬仍能跑 → `harness\`。library `.slx` 不直接讀 `data\`，數值一律由 `workspace\*.mat` 提供；harness 的比對資料直接讀 `data\`，不另存副本；取參數與驗證不用同一筆資料 |
 | 設計 / 模擬產出 | 雙軌：`.mat` 一律存 `workspace\`；同時輸出人類可讀的 `.xlsx` / `.txt` / 參數檔到 `output\`。例外：工具 session 檔留在 `design\` 原處 |
-| 分系統資料 | `data\<分系統>\{source, mat, figure}`；`source`＝原始交付（只增不改）、`mat`＝轉出的 `.mat`、`figure`＝分析圖；腳本放分系統根目錄 |
-| 整合測試資料 | `data\<階段>\`，階段＝`sil` / `hil1` / `hil2` / `ft`；跨階段共用腳本放 `data\` 根目錄 |
+| `data\` 整合層級 | 第 2 層＝`module`（單一元件）→ `system`（分系統）→ `simulation`（SIL）→ `ground`（HIL）→ `flight`（飛測）。判斷：只涉及一個元件 → `module`；多個元件組成分系統，或該分系統的數學模型 → `system`；多個分系統整合：純軟體 → `simulation`、實體硬體在地面 → `ground`、實際飛行 → `flight` |
+| 模組與分系統資料 | `data\module\<元件>\`、`data\system\<分系統>\` 底下 `{source, mat, figure}`；`source`＝原始交付（只增不改）、`mat`＝轉出的 `.mat`、`figure`＝分析圖；該 L3 專屬的腳本與模型檔放 L3 根目錄 |
+| ulog 資料 | 只收四個階段的 ulog：`data\simulation\sil\`、`data\ground\hil1\`、`data\ground\hil2\`、`data\flight\`，資料夾內平放；共用的讀取與繪圖工具放 `library\ulog\` |
+| ulog 檔名 | `<階段>_<機型版本>_NO<架次>_<YYYYMMDD>_<HHMM>`；階段大寫、版本兩碼不含小數點、架次三碼補零、時間 24 小時制；衍生檔沿用同一主檔名 |
+| `temp\` 收件匣 | 新收到、尚未分類的檔案先放 `temp\`；Claude 於對話開始或提到新檔案時主動檢查，列歸檔清單（`# × 原檔名 × 目的地路徑 × 新檔名 × 判定依據`），確認後搬移與改名；判定不了的留在 `temp\` 標「待確認」；不改內容、不刪除、不覆蓋同名檔；腳本與模型不得引用 `temp\` |
 | 結果檔 | 每 case 收進 struct array，一次存 `workspace\<project>_<DOMAIN>_<Stage>Results.mat` |
 | 版本控制 | 以 git 管理；變更歷程看 commit，不寫在檔頭；commit 由 `<負責人>` 執行 |
 
@@ -139,15 +142,16 @@
 | 資料夾 | 用途 | 權限 |
 |---|---|---|
 | `CLAUDE.md`、`README.md` | 協作指引 / 專案說明 | 寫入需確認 |
-| `data\` | 分系統資料（`source` / `mat` / `figure` ＋ 根目錄腳本）；整合測試階段 `sil` / `hil1` / `hil2` / `ft` | 寫入需確認 |
+| `data\` | 依整合層級：`module` / `system`（`source` / `mat` / `figure` ＋ L3 根目錄腳本與模型）；`simulation\sil`、`ground\hil1`、`ground\hil2`、`flight`（ulog） | 寫入需確認 |
 | `workspace\` | `.mat` 集中區；各腳本統一由此讀寫 | 寫入需確認 |
-| `library\` | 通用次系統 library `.slx`；參數來自 `workspace\*.mat` | 寫入需確認 |
+| `library\` | 通用次系統 library `.slx`（參數來自 `workspace\*.mat`）；`library\ulog\` 跨階段共用的 ulog 工具 | 寫入需確認 |
 | `model\` | 主 plant 模型（整機組裝；不含測試） | 寫入需確認 |
 | `design\` | init / trim / linearize / design / sim，依 domain 分子資料夾 | 寫入需確認 |
 | `harness\` | 次系統開迴路驗證、library 模組獨立驗證 | 寫入需確認 |
 | `veristand\` | SIL / HIL 即時目標機模型 | 寫入需確認 |
 | `output\` | 人類可讀產出：`.xlsx` / `.txt` / 參數檔 / 圖檔 | 寫入需確認 |
 | `documents\` | 技術報告草稿（`.md`） | 寫入需確認 |
+| `temp\` | 收件匣：尚未分類的新檔案；不上 path、不被引用、常態為空 | 搬移需確認 |
 | `cache\` `resources\` `.git\` | 建置快取 / Project 資源 / 版本庫 | 勿動 |
 
 ## 9. 典型工作流程

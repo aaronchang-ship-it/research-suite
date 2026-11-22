@@ -1,7 +1,7 @@
 {
   "name": "research-suite",
   "description": "文獻探勘 → 研究整理 → 文件產出／plant 建模 一站式套件（pxa-scout / pxa-literature / pxa-scribe / pxa-standards / pxa-mentor / pxa-latexer / pxa-modeler / pxa-matlab-style / pxa-matlab-project）",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "author": {
     "name": "Aaron Chang"
   }

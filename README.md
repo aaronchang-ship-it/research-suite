@@ -34,7 +34,7 @@ Claude Code / Cowork **plugin marketplace**。內含文獻研究、標準寫作�
 
 | skill | 用途 |
 |---|---|
-| `pxa-matlab-project` | 專案資料夾分類與檔案歸類（九個固定資料夾、相依鏈、三個判斷問句、產出雙軌；新專案範本、盤點與搬移流程；專案 README 的 MD＋HTML 雙軌） |
+| `pxa-matlab-project` | 專案資料夾分類與檔案歸類（九個固定資料夾＋`temp\` 收件匣、相依鏈、三個判斷問句、`data\` 依整合層級編排、ulog 檔名規則、產出雙軌；新專案範本、盤點與搬移流程、收件匣歸檔；專案 README 的 MD＋HTML 雙軌） |
 | `pxa-modeler` | plant 數學模型建模工作流（三種證據 → 保真度分層 L1–L3 → 驗證階梯；工具操作配合 MathWorks 官方 skill） |
 | `pxa-matlab-style` | MATLAB m-file 撰碼風格（檔頭、分段、對齊、命名、單位換算、輸出與繪圖；統一既有檔案的流程） |
 
