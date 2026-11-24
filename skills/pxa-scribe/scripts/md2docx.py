@@ -2,17 +2,20 @@
 """PXA 報告 MD → docx 轉換（scribe 交付管線，版面＝templates/PXA-SP-template.dotx）
 
 用法:
-    python md2docx.py <Report.md> [-o out.docx] [--template PXA-SP-template.dotx]
+    python md2docx.py <Report.md> [-o out.docx] [--template PXA-SP-template.dotx] [--no-xref]
 
 流程（確定性，同一輸入產出同一版面）:
   0. 先複製範本（.dotx → 暫存 .docx），之後一切樣式、頁首頁尾、邊界都取自這份副本
   1. 前處理 MD：
      - 剝除 MD 頭部 metadata 區塊（docx 自「封面」起始）
      - 移除 page-break div 與其後緊鄰之 `---`（章標題樣式本身即「段落前分頁」）
-     - 提示區塊 `> [!NOTE]` / `[!IMPORTANT]` / `[!TIP]` → 樣式化引用區塊
+     - 提示區塊 `> [!NOTE]` / `[!IMPORTANT]` / `[!TIP]` → 樣式化引用區塊；一般 `>` 區塊 → 內文段落
      - 粗體標籤行（如 **致謝**）後接內文者保留換行
      - `$$` 區塊內 \\tag{X} → 式尾 (X)
+     - 移除審核標記 [L1]–[L4] 與其後之 ✓／⚠、證據層級說明句、Typora 目錄標記 [[TOC]]
+     - 交互參照（docx_xref.md_pass）：引用、參考文獻、表／圖題注換成記號；--no-xref 或輸出 .dotx 時不做
   2. pandoc -t docx --reference-doc <範本副本>（LaTeX 數學 → Word 原生方程式）
+  2a. 記號 → 欄位與書籤（docx_xref.docx_pass）：編號引用 [n]、SEQ 題注、REF 交互參照
   3. 後處理 docx：
      - 封面、書名頁依範本版式重排（資料取自 MD「封面」「書名頁」兩節之表格）
      - 分三節：封面不編頁碼｜前頁小寫羅馬數字（書名頁計為 i、不顯示）｜正文阿拉伯數字自 1 起
@@ -33,6 +36,9 @@ import tempfile
 import zipfile
 import xml.dom.minidom as minidom
 from xml.sax.saxutils import escape
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import docx_xref  # noqa: E402  同資料夾
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE = os.path.join(HERE, '..', 'templates', 'PXA-SP-template.dotx')
@@ -63,6 +69,32 @@ def fix_tags(text):
     return re.sub(r'\$\$\n(.*?)\$\$', repl, text, flags=re.S)
 
 
+EVIDENCE = re.compile(r'證據層級|\[L#\]|依作者年份排序')       # 只對審查者有意義的說明（docx 改為編號排序）
+MARK = re.compile(r'\[L[1-4]\][✓⚠]?')
+
+
+def drop_evidence(line):
+    """刪去含證據層級說明之子句（以頂層「，；」切分，括號內不切）；整句都是說明則整句刪去。"""
+    out = []
+    for sent in re.findall(r'[^。]*。?', line):
+        if not EVIDENCE.search(sent):
+            out.append(sent)
+            continue
+        pieces, depth, cur = [], 0, ''
+        for ch in sent:
+            depth += ch in '（(' and 1 or (ch in '）)' and -1 or 0)
+            cur += ch
+            if depth == 0 and ch in '，；':
+                pieces.append(cur)
+                cur = ''
+        pieces.append(cur)
+        keep = [p for p in pieces if not EVIDENCE.search(p)]
+        if keep:
+            s = ''.join(keep)
+            out.append(s[:-1] + '。' if s[-1:] in '，；' else s)
+    return ''.join(out)
+
+
 def preprocess(text):
     m = re.search(r'文件編號[:：]\*{0,2}\s*([A-Za-z0-9+\-]+)', text)
     strn = m.group(1) if m else ''
@@ -71,10 +103,27 @@ def preprocess(text):
         text = text[i:]
     text = fix_tags(text)
 
-    out, skip_hr = [], False
+    out, skip_hr, callout, fenced = [], False, False, False
     lines = text.split('\n')
     for k, ln in enumerate(lines):
         s = ln.strip()
+        if s.startswith('```'):
+            fenced = not fenced
+        if not fenced:
+            if s in ('[[TOC]]', '[TOC]'):                                  # Typora 目錄標記
+                continue
+            if s and not s.startswith(('|', '#')) and EVIDENCE.search(s):
+                ln = drop_evidence(ln)
+                if not ln.strip():
+                    continue
+                s = ln.strip()
+            ln = MARK.sub('', ln)
+            s = ln.strip()
+            if s.startswith('>') and not re.match(r'>\s*\[!', s):
+                if not callout:                                          # 一般引用區塊 → 內文段落
+                    ln = s[1:].lstrip()
+                    s = ln
+            callout = (callout and s.startswith('>')) or bool(re.match(r'>\s*\[!', s))
         if re.fullmatch(r'\*\*[^*|]+\*\*', s) and k + 1 < len(lines) and re.match(r'[^\s|#>$<\-*]', lines[k + 1]):
             ln = s + '\\'                                            # 粗體標籤行後接內文：保留換行
         if s.startswith('<div') and 'page-break-after' in s:
@@ -124,6 +173,7 @@ def write_pkg(path, parts, as_template=False):
 
 # ------------------------------------------------------------------ XML 小工具
 def plain(x):
+    x = re.sub(r'<w:instrText[^>]*>[^<]*</w:instrText>', '', x)             # 欄位代碼不算顯示文字
     return html.unescape(re.sub(r'<[^>]+>', '', x)).strip()
 
 
@@ -520,12 +570,17 @@ def main():
     ap.add_argument('input')
     ap.add_argument('-o', '--output')
     ap.add_argument('--template', '--refdoc', dest='template', default=TEMPLATE)
+    ap.add_argument('--no-xref', action='store_true', help='不做交互參照（保留作者年份引用與純文字題注）')
     a = ap.parse_args()
     out = os.path.abspath(a.output or os.path.splitext(a.input)[0] + '.docx')
     src = os.path.abspath(a.input)
+    xref = not a.no_xref and not out.lower().endswith('.dotx')
 
     text = open(src, encoding='utf-8').read()
     pre, strn = preprocess(text)
+    report = []
+    if xref:
+        pre, info, report = docx_xref.md_pass(pre)
     tmp = tempfile.mkdtemp(prefix='md2docx_')
     try:
         ref = os.path.join(tmp, 'template-copy.docx')          # 步驟 0：先複製範本
@@ -536,11 +591,17 @@ def main():
         subprocess.run(['pandoc', premd, '-f', 'markdown', '-t', 'docx', '--reference-doc', ref,
                         '--resource-path', os.path.dirname(src), '-o', raw], check=True)
         parts = read_pkg(raw)
+        if xref:
+            report += docx_xref.docx_pass(parts, info)
         num = postprocess(parts, strn)
         write_pkg(out, parts, as_template=out.lower().endswith('.dotx'))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     print('OK %s  (報告編號: %s)' % (out, num or 'n/a'))
+    if xref:
+        print('交互參照：參考文獻 %d 筆、表／圖題注 %d 個；開啟後在 Word 按 Ctrl+A、F9 更新欄位' % (info['refs'], len(info['caps'])))
+    for r in report:
+        print('注意：' + r)
 
 
 if __name__ == '__main__':

@@ -17,8 +17,9 @@
   6. 禁止用語掃描（大約/應該可以/眾所周知/顯然/等等/顯著影響/大幅提升）
   7. 摘要淨空：無 $$ 公式、無 [Author Year] 外部引用
   8. 有外部引用時逐字摘錄附錄存在，且每個引用代碼有「引用摘錄」表
-  9. MD 頭部 metadata：文件編號/版本/日期/狀態/報告性質 齊全
+  9. MD 頭部 metadata：文件編號/版本/日期/狀態/報告性質 齊全（欄名可附英文，如「報告性質（Report Nature）」）
  10. [回報不擋件] [L2] 標記計數（協調制門檻 5）
+ 11. 節序：結論 → 參考文獻 → 附錄（SP-002 §3.0 骨架順序固定）
 
 仍含 `## Part N:` 標題者為舊制結構（SP-002 v3.0 起退役），判為不合規。
 
@@ -86,7 +87,7 @@ def main(path):
     for field in ["文件編號", "版本", "日期", "狀態", "報告性質"]:
         if field not in head:
             problems.append(f"[metadata] 頭部缺「{field}」")
-    m = re.search(r"報告性質[:：]\*{0,2}\s*([^\n]+)", head)
+    m = re.search(r"報告性質(?:\s*[（(][^）)\n]*[）)])?\*{0,2}\s*[:：]\*{0,2}\s*([^\n]+)", head)
     natures = [n for n in NATURE_SECTIONS if m and n in m.group(1)]
     if m and not natures:
         problems.append(f"[性質] 報告性質「{m.group(1).strip()}」無法辨識（須為 研究／設計／測試，可用＋並列）")
@@ -142,6 +143,16 @@ def main(path):
             problems.append("[摘要] 含公式（禁止）")
         if re.search(CITE, m.group(1)):
             problems.append("[摘要] 含外部文獻引用（禁止）")
+
+    # 11. section order: conclusions -> references -> appendices
+    h2 = [(i, l) for i, l in heads if re.match(r"^##\s", l)]
+    pos = lambda pat: next((i for i, l in h2 if re.search(pat, l)), None)
+    order = [("結論", pos(r"^##\s*\d+\s*[\.．].*(?:Conclusions|Concluding Remarks|結論)")),
+             ("參考文獻", pos(REFS)), ("附錄", pos(r"^##\s*(?:附錄|Appendix)"))]
+    order = [(n, i) for n, i in order if i is not None]
+    for (n1, i1), (n2, i2) in zip(order, order[1:]):
+        if i1 > i2:
+            problems.append(f"[節序] 「{n2}」（第 {i2+1} 行）排在「{n1}」（第 {i1+1} 行）之前；須為 結論 → 參考文獻 → 附錄（SP-002 §3.0）")
 
     # 8. verbatim excerpts appendix
     if cited:
