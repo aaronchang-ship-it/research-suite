@@ -5,7 +5,7 @@
 ## 這是什麼
 
 - 單一 plugin：`research-suite`（marketplace 名亦為 `research-suite`）。
-- 9 個 skill，兩條主線（研究流程與報告撰寫；MATLAB / Simulink 檔案建立與資料夾分類）：`pxa-scout`（文獻探勘）→ `pxa-literature`（研究整理 SOP）→ 兩條下游：`pxa-scribe`（技術報告產出）→ `pxa-latexer`（LaTeX 紙本歸檔版），以及 `pxa-modeler`（plant 數學模型建模工作流）；`pxa-mentor` 為知識庫導師；`pxa-standards` 為規則 SSoT（單一真實來源）；`pxa-matlab-style` 為 MATLAB m-file 撰碼風格；`pxa-matlab-project` 為 MATLAB / Simulink 專案資料夾分類與檔案歸類。
+- 12 個 skill，兩條主線（研究流程與報告撰寫；MATLAB / Simulink 檔案建立與資料夾分類）：`pxa-scout`（文獻探勘）→ `pxa-literature`（研究整理 SOP）→ 兩條下游：`pxa-scribe`（技術報告產出）→ `pxa-latexer`（LaTeX 紙本歸檔版）與 `pxa-presentation`（簡報產出，草稿），以及 `pxa-modeler`（plant 數學模型建模工作流）；`pxa-mentor` 為知識庫導師；`pxa-standards` 為規則 SSoT（單一真實來源）；`pxa-cis` 為顏色、字型、標誌的取值來源（公開的中性預設值＋私有品牌包）；`pxa-diagram` 為方塊圖、流程圖、泳道圖的畫法（草稿）；`pxa-matlab-style` 為 MATLAB m-file 撰碼風格；`pxa-matlab-project` 為 MATLAB / Simulink 專案資料夾分類與檔案歸類。
 - **佈局**：每個 skill 位於 `skills/<name>/SKILL.md`，plugin 安裝時自動探索。這是官方唯一保證會被載入的佈局。
 
 ## ⚠️ 載入／sync 的鐵則（踩過的雷）

@@ -1,0 +1,45 @@
+---
+config:
+  theme: base
+  fontFamily: "Noto Sans TC, Microsoft JhengHei, sans-serif"
+  themeVariables:
+    fontFamily: "Noto Sans TC, Microsoft JhengHei, sans-serif"
+    fontSize: "14px"
+    background: "#FFFFFF"
+    textColor: "#1B2733"
+    primaryColor: "#EEF3F6"
+    primaryBorderColor: "#5F6B76"
+    primaryTextColor: "#1B2733"
+    lineColor: "#3A3A3A"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FAFAFC"
+    clusterBorder: "#7F72C0"
+---
+%% 範例（虛構內容）：uav01mk20 配平與線性化的批次流程，回答「每個飛行點怎麼產出線性模型、失敗時怎麼辦」。
+flowchart LR
+  P["飛行包絡點
+  envelope_uav01mk20.xlsx"]:::data
+  T["配平
+  uav01mk20_trim.m"]:::script
+  C{"殘差小於 1e-6？"}:::dec
+  L["線性化
+  linmod → ss"]:::script
+  O["線性模型庫
+  output\lin_uav01mk20.mat"]:::dlv
+  M["整機模型
+  uav01mk20.slx"]:::core
+
+  P -->|"一個飛行點"| T
+  T --> C
+  C -->|"是"| L
+  L -->|"A, B, C, D"| O
+  C -.->|"否：換初值重試（最多 3 次）"| T
+  O -.->|"下一個飛行點"| P
+  T -->|"呼叫，取回 x0, u0"| M
+  L -->|"在 x0, u0 線性化"| M
+
+  classDef data   fill:#FDE39E,stroke:#B5892B,color:#1B2733,stroke-width:1.6px
+  classDef core   fill:#5B4AA8,stroke:#3F3380,color:#FFFFFF,stroke-width:1.6px
+  classDef dlv    fill:#DBD7F1,stroke:#5B4AA8,color:#1B2733,stroke-width:1.6px
+  classDef script fill:#C9DFF5,stroke:#3F78B5,color:#1B2733,stroke-width:1.6px
+  classDef dec    fill:#EDEDED,stroke:#7F7F7F,color:#1B2733,stroke-width:1.6px

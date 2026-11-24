@@ -1,0 +1,57 @@
+---
+config:
+  theme: base
+  fontFamily: "Noto Sans TC, Microsoft JhengHei, sans-serif"
+  themeVariables:
+    fontFamily: "Noto Sans TC, Microsoft JhengHei, sans-serif"
+    fontSize: "14px"
+    background: "#FFFFFF"
+    textColor: "#1B2733"
+    primaryColor: "#EEF3F6"
+    primaryBorderColor: "#5F6B76"
+    primaryTextColor: "#1B2733"
+    lineColor: "#3A3A3A"
+    edgeLabelBackground: "#FFFFFF"
+    clusterBkg: "#FAFAFC"
+    clusterBorder: "#7F72C0"
+    actorBkg: "#EEF3F6"
+    actorBorder: "#5F6B76"
+    actorTextColor: "#1B2733"
+    actorLineColor: "#C9D3DA"
+    signalColor: "#3A3A3A"
+    signalTextColor: "#1B2733"
+    labelBoxBkgColor: "#EEF3F6"
+    labelBoxBorderColor: "#C9D3DA"
+    labelTextColor: "#1B2733"
+    loopTextColor: "#1B2733"
+    noteBkgColor: "#FDF4E0"
+    noteBorderColor: "#B5892B"
+    noteTextColor: "#1B2733"
+    activationBkgColor: "#DBD7F1"
+    activationBorderColor: "#5B4AA8"
+    sequenceNumberColor: "#FFFFFF"
+---
+%% pxa-diagram Mermaid 範本：複製後改檔名；上方 config 與下方 classDef 不改，只改圖的內容。
+%% 色碼對應 pxa-cis：版面色取 §4（color.surface / muted / line / ink），角色色取 §5（role.* / band.*）。
+%% 排版（ELK、直角線、不用 HTML 標籤）由 scripts/mmd2svg.ps1 的 initialize 設定，這裡不寫。
+%% 節點依流程先後宣告：ELK 依宣告順序判斷哪條線是回頭線。
+%% 時序圖、狀態圖沿用同一段 config，把第一行圖種改成 sequenceDiagram 或 stateDiagram-v2，classDef 段刪掉。
+flowchart LR
+  A["〔名稱〕
+  〔說明或檔名〕"]:::data
+  B["〔名稱〕
+  〔說明或檔名〕"]:::model
+  C{"〔條件〕？"}:::dec
+  D["〔名稱〕
+  〔說明或檔名〕"]:::dlv
+  A --> B --> C
+  C -->|"是"| D
+  C -.->|"否：〔重試的原因〕"| B
+
+  classDef data   fill:#FDE39E,stroke:#B5892B,color:#1B2733,stroke-width:1.6px
+  classDef model  fill:#C3E6B6,stroke:#4F9A44,color:#1B2733,stroke-width:1.6px
+  classDef core   fill:#5B4AA8,stroke:#3F3380,color:#FFFFFF,stroke-width:1.6px
+  classDef dlv    fill:#DBD7F1,stroke:#5B4AA8,color:#1B2733,stroke-width:1.6px
+  classDef script fill:#C9DFF5,stroke:#3F78B5,color:#1B2733,stroke-width:1.6px
+  classDef dec    fill:#EDEDED,stroke:#7F7F7F,color:#1B2733,stroke-width:1.6px
+  classDef flag   fill:#FBDCD6,stroke:#B5433A,color:#1B2733,stroke-width:1.6px

@@ -26,6 +26,9 @@ Claude Code / Cowork **plugin marketplace**。內含文獻研究、標準寫作�
 | `pxa-scout` | 文獻缺口探勘（引用鏈滾雪球 snowballing＋figures 奠基者錨定） |
 | `pxa-literature` | 文獻研究 SOP（source → atomic → MOC → 工程文件草稿） |
 | `pxa-scribe` | 盤問研究需求 → 證據盤點（vault 優先，無 vault 依專案編排規則或詢問）→ roadmap → NASA-TP 等級報告（documents/{STRN}.md，MD 先行） |
+| `pxa-presentation` | 由既有內容（對話、scribe 報告、literature 知識庫、專案 `output\`）產出簡報：進度匯報、技術審查、導讀教學與對外濃縮版；附 `.potx` 範本（草稿，流程待定） |
+| `pxa-diagram` | 方塊圖、流程圖、泳道圖的畫法（依角色上色、連線、圖例、分層；依圖種選工具：時序圖、流程圖、狀態圖用 Mermaid，架構與控制方塊圖用 SVG；附範本與轉檔腳本；草稿） |
+| `pxa-cis` | 識別系統的取值規則：品牌色、圖用的角色色、字型、標誌用法；公開的中性預設值＋私有品牌包 |
 | `pxa-standards` | SP 技術報告標準寫作規範檢查 |
 | `pxa-mentor` | 研究知識庫互動式導師（讀 vault、以體系主人思維精簡答問） |
 | `pxa-latexer` | scribe 定稿 Report.md → LaTeX 紙本歸檔版（.tex，XeLaTeX） |
@@ -56,6 +59,9 @@ skills/                 ← plugin 安裝時自動探索此目錄下的每個 sk
   ├─ pxa-scout/         （各含 SKILL.md）
   ├─ pxa-literature/
   ├─ pxa-scribe/
+  ├─ pxa-presentation/
+  ├─ pxa-diagram/
+  ├─ pxa-cis/
   ├─ pxa-standards/
   ├─ pxa-mentor/
   ├─ pxa-latexer/

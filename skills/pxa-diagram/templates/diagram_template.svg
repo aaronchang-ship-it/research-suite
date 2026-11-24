@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif">
+  <!-- pxa-diagram 範本：複製後改檔名，只填「方塊」「連線」「圖例」三段；<style> 與 <defs> 不改。
+       座標取 10 的倍數；色碼對應 pxa-cis defaults/brand.json 的 role.* 與 band.*。 -->
+  <title>〔這張圖回答的問題〕</title>
+  <style>
+    .bx{stroke-width:1.6}
+    .data{fill:#FDE39E;stroke:#B5892B}
+    .model{fill:#C3E6B6;stroke:#4F9A44}
+    .core{fill:#5B4AA8;stroke:#3F3380}
+    .dlv{fill:#DBD7F1;stroke:#5B4AA8}
+    .script{fill:#C9DFF5;stroke:#3F78B5}
+    .dec{fill:#EDEDED;stroke:#7F7F7F}
+    .flag{fill:#FBDCD6;stroke:#B5433A}
+    .band-model{fill:#EDF8EB}.band-script{fill:#EBF2FD}.band-data{fill:#FDF4E0}.band-dlv{fill:#F2F0FC}
+    .grp{fill:#FAFAFC;stroke:#7F72C0;stroke-width:1.4;stroke-dasharray:6 4}
+    .t1{font-size:15px;font-weight:700;fill:#1B2733;text-anchor:middle}
+    .t2{font-size:11.5px;fill:#1B2733;text-anchor:middle}
+    .inv{fill:#FFFFFF}
+    .tf{font-family:Consolas,monospace;font-size:10.5px;fill:#1B2733;text-anchor:middle}
+    .th{font-size:14px;font-weight:700;fill:#1B2733;text-anchor:middle}
+    .e{fill:none;stroke:#3A3A3A;stroke-width:1.5}
+    .e2{fill:none;stroke:#3A3A3A;stroke-width:1.5;stroke-dasharray:6 4}
+    .el{font-size:11.5px;fill:#3A3A3A;text-anchor:middle}
+    .lg{font-size:12px;fill:#1B2733}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3A3A3A"/>
+    </marker>
+  </defs>
+
+  <!-- 方塊：rect 圓角 14；名稱 t1 在方塊上緣下 28，說明 t2 在下 50（高 70 時）。core 方塊的文字加 inv -->
+  <rect class="bx data" x="10" y="90" width="130" height="70" rx="14"/>
+  <text class="t1" x="75" y="118">〔名稱〕</text><text class="t2" x="75" y="140">〔說明或檔名〕</text>
+
+  <rect class="bx model" x="170" y="90" width="130" height="70" rx="14"/>
+  <text class="t1" x="235" y="118">〔名稱〕</text><text class="t2" x="235" y="140">〔說明或檔名〕</text>
+
+  <!-- 判斷：菱形，出口標 是／否 -->
+  <path class="bx dec" d="M400,85 L470,125 L400,165 L330,125 Z"/>
+  <text class="t1" x="400" y="130">〔條件〕？</text>
+
+  <!-- 小標籤：膠囊，壓在方塊右上角框線上 -->
+  <rect class="bx flag" x="220" y="80" width="70" height="20" rx="10"/>
+  <text class="tf" x="255" y="94">flag.x</text>
+
+  <!-- 連線：只用 H、V；箭頭停在方塊邊外 2 -->
+  <path class="e" d="M140,125 H168" marker-end="url(#ah)"/>
+  <path class="e" d="M300,125 H328" marker-end="url(#ah)"/>
+  <path class="e" d="M470,125 H520" marker-end="url(#ah)"/>
+  <text class="el" x="494" y="117">是</text>
+  <path class="e2" d="M400,165 V210 H235 V162" marker-end="url(#ah)"/>
+  <text class="el" x="318" y="226">否：〔重試的原因〕</text>
+
+  <!-- 圖例：左下，只列這張圖用到的角色 -->
+  <g transform="translate(10,268)">
+    <rect class="bx data"  x="0"  y="0" width="26" height="16" rx="4"/><text class="lg" x="34"  y="13">〔資料〕</text>
+    <rect class="bx model" x="110" y="0" width="26" height="16" rx="4"/><text class="lg" x="144" y="13">〔模型〕</text>
+  </g>
+</svg>

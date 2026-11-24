@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" width="1000" height="300" font-family="'Noto Sans TC','Microsoft JhengHei',sans-serif">
+  <title>uav01mk20 專案資料夾的資料流</title>
+  <style>
+    .bx{stroke-width:1.6}
+    .data{fill:#FDE39E;stroke:#B5892B}
+    .model{fill:#C3E6B6;stroke:#4F9A44}
+    .core{fill:#5B4AA8;stroke:#3F3380}
+    .dlv{fill:#DBD7F1;stroke:#5B4AA8}
+    .script{fill:#C9DFF5;stroke:#3F78B5}
+    .t1{font-size:15px;font-weight:700;fill:#1B2733;text-anchor:middle}
+    .t2{font-size:11.5px;fill:#1B2733;text-anchor:middle}
+    .core .t1,.core .t2,.inv{fill:#FFFFFF}
+    .e{fill:none;stroke:#3A3A3A;stroke-width:1.5}
+    .e2{fill:none;stroke:#3A3A3A;stroke-width:1.5;stroke-dasharray:6 4}
+    .el{font-size:11.5px;fill:#3A3A3A;text-anchor:middle}
+    .lg{font-size:12px;fill:#1B2733}
+  </style>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3A3A3A"/>
+    </marker>
+  </defs>
+
+  <!-- pxa-diagram 範例：方塊圖（專案資料夾的資料流）；內容為虛構代號 -->
+  <!-- 主列：y=90..160（高 70），寬 130，間距 30 -->
+  <rect class="bx data"   x="10"  y="90" width="130" height="70" rx="14"/>
+  <text class="t1" x="75"  y="118">data\</text><text class="t2" x="75"  y="140">分系統與測試原始資料</text>
+
+  <rect class="bx data"   x="170" y="90" width="130" height="70" rx="14"/>
+  <text class="t1" x="235" y="118">workspace\</text><text class="t2" x="235" y="140">參數與結果 .mat</text>
+
+  <rect class="bx model"  x="330" y="90" width="130" height="70" rx="14"/>
+  <text class="t1" x="395" y="118">library\</text><text class="t2" x="395" y="140">通用次系統模組</text>
+
+  <rect class="bx core"   x="490" y="90" width="130" height="70" rx="14"/>
+  <text class="t1 inv" x="555" y="118">model\</text><text class="t2 inv" x="555" y="140">uav01mk20.slx 整機</text>
+
+  <!-- 分支欄：x=680，三列 y=20 / 100 / 180 -->
+  <rect class="bx script" x="680" y="20"  width="130" height="60" rx="14"/>
+  <text class="t1" x="745" y="45">design\</text><text class="t2" x="745" y="65">配平、線性化、控制律</text>
+
+  <rect class="bx model"  x="680" y="100" width="130" height="60" rx="14"/>
+  <text class="t1" x="745" y="125">veristand\</text><text class="t2" x="745" y="145">即時目標機模型</text>
+
+  <rect class="bx model"  x="680" y="180" width="130" height="60" rx="14"/>
+  <text class="t1" x="745" y="205">harness\</text><text class="t2" x="745" y="225">次系統開迴路驗證</text>
+
+  <!-- 交付欄：x=850 -->
+  <rect class="bx dlv"    x="850" y="20"  width="140" height="60" rx="14"/>
+  <text class="t1" x="920" y="45">output\</text><text class="t2" x="920" y="65">txt、xlsx、params、圖</text>
+
+  <rect class="bx dlv"    x="850" y="120" width="140" height="60" rx="14"/>
+  <text class="t1" x="920" y="145">documents\</text><text class="t2" x="920" y="165">技術報告</text>
+
+  <!-- 主流程：實線 -->
+  <path class="e" d="M140,125 H168" marker-end="url(#ah)"/>
+  <path class="e" d="M300,125 H328" marker-end="url(#ah)"/>
+  <path class="e" d="M460,125 H488" marker-end="url(#ah)"/>
+  <!-- 匯流幹線：先到 x=650 再分支 -->
+  <path class="e" d="M620,125 H650"/>
+  <path class="e" d="M650,50 V210"/>
+  <path class="e" d="M650,50 H678"  marker-end="url(#ah)"/>
+  <path class="e" d="M650,130 H678" marker-end="url(#ah)"/>
+  <path class="e" d="M650,210 H678" marker-end="url(#ah)"/>
+  <path class="e" d="M810,50 H848"  marker-end="url(#ah)"/>
+  <path class="e" d="M920,80 V118"  marker-end="url(#ah)"/>
+
+  <!-- 次要資料流：虛線 -->
+  <path class="e2" d="M235,90 V8 H745 V18" marker-end="url(#ah)"/>
+  <text class="el" x="470" y="22">設計結果 .mat 寫回 workspace\，下游腳本由此讀取</text>
+  <path class="e2" d="M75,160 V230 H678" marker-end="url(#ah)"/>
+  <text class="el" x="360" y="222">驗證比對資料直接讀取，不另存副本</text>
+
+  <!-- 圖例：左下，只列用到的角色 -->
+  <g transform="translate(10,268)">
+    <rect class="bx data"   x="0"   y="0" width="26" height="16" rx="4"/><text class="lg" x="34"  y="13">資料</text>
+    <rect class="bx model"  x="90"  y="0" width="26" height="16" rx="4"/><text class="lg" x="124" y="13">模型</text>
+    <rect class="bx core"   x="180" y="0" width="26" height="16" rx="4"/><text class="lg" x="214" y="13">plant 模型</text>
+    <rect class="bx script" x="300" y="0" width="26" height="16" rx="4"/><text class="lg" x="334" y="13">設計</text>
+    <rect class="bx dlv"    x="390" y="0" width="26" height="16" rx="4"/><text class="lg" x="424" y="13">交付</text>
+  </g>
+</svg>

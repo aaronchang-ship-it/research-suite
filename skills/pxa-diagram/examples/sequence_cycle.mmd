@@ -1,0 +1,46 @@
+---
+config:
+  theme: base
+  fontFamily: "Noto Sans TC, Microsoft JhengHei, sans-serif"
+  themeVariables:
+    fontFamily: "Noto Sans TC, Microsoft JhengHei, sans-serif"
+    fontSize: "14px"
+    background: "#FFFFFF"
+    textColor: "#1B2733"
+    actorBkg: "#EEF3F6"
+    actorBorder: "#5F6B76"
+    actorTextColor: "#1B2733"
+    actorLineColor: "#C9D3DA"
+    signalColor: "#3A3A3A"
+    signalTextColor: "#1B2733"
+    labelBoxBkgColor: "#EEF3F6"
+    labelBoxBorderColor: "#C9D3DA"
+    labelTextColor: "#1B2733"
+    loopTextColor: "#1B2733"
+    noteBkgColor: "#FDF4E0"
+    noteBorderColor: "#B5892B"
+    noteTextColor: "#1B2733"
+    activationBkgColor: "#DBD7F1"
+    activationBorderColor: "#5B4AA8"
+    sequenceNumberColor: "#FFFFFF"
+---
+%% 範例（虛構內容）：uav01mk20 飛控一個控制週期，回答「誰在什麼頻率把什麼傳給誰」。
+sequenceDiagram
+  autonumber
+  participant SEN as 感測模型
+  participant GUI as guidance（50 Hz）
+  participant ATT as att_ctrl（200 Hz）
+  participant RATE as rate_ctrl（400 Hz）
+  participant ALC as allocator
+  participant PLT as uav01mk20.slx
+  Note over SEN,PLT: 懸停；頻率為標稱值
+  SEN->>GUI: pos_est（觸發）
+  GUI->>ATT: att_sp（下游以 ZOH 保持）
+  SEN->>ATT: att_est（觸發）
+  ATT->>RATE: rate_sp
+  loop 每 2.5 ms
+    SEN->>RATE: gyro（觸發）
+    RATE->>ALC: torque_sp, thrust_sp
+    ALC->>PLT: motor_cmd[0..4], servo_cmd[0..2]
+    ALC-->>RATE: alloc_status（飽和旗標）
+  end

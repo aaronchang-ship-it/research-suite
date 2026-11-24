@@ -1,0 +1,37 @@
+{
+  "name": "neutral",
+  "org": { "name_zh": "", "name_en": "" },
+  "color": {
+    "primary": "0957C3",
+    "secondary": "307FE2",
+    "ink": "1B2733",
+    "muted": "5F6B76",
+    "surface": "EEF3F6",
+    "line": "C9D3DA",
+    "accent": "F2A541"
+  },
+  "role": {
+    "data":        { "fill": "FDE39E", "line": "B5892B", "text": "1B2733" },
+    "model":       { "fill": "C3E6B6", "line": "4F9A44", "text": "1B2733" },
+    "core":        { "fill": "5B4AA8", "line": "3F3380", "text": "FFFFFF" },
+    "deliverable": { "fill": "DBD7F1", "line": "5B4AA8", "text": "1B2733" },
+    "script":      { "fill": "C9DFF5", "line": "3F78B5", "text": "1B2733" },
+    "decision":    { "fill": "EDEDED", "line": "7F7F7F", "text": "1B2733" },
+    "flag":        { "fill": "FBDCD6", "line": "B5433A", "text": "1B2733" }
+  },
+  "band": {
+    "model": "EDF8EB",
+    "script": "EBF2FD",
+    "data": "FDF4E0",
+    "deliverable": "F2F0FC",
+    "group": "FAFAFC"
+  },
+  "font": {
+    "zh": "Noto Sans TC",
+    "latin": "Noto Sans TC",
+    "fallback_zh": "Microsoft JhengHei",
+    "mono": "Consolas"
+  },
+  "logo": { "color": "", "white": "", "clear_space": "", "backgrounds": "" },
+  "template": { "presentation": "" }
+}
